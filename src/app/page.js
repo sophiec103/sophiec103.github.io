@@ -11,9 +11,15 @@ export default function Home() {
       <div className="content-wrapper">
         <div className="text-wrapper">
           <h2 className="greeting">Hello!</h2>
-          <h1 className={`name ${encode.className}`}>{"I'm Sophie Chan"}</h1>
+          <h1 className={`name ${encode.className}`}>I&apos;m Sophie Chan</h1>
           <p className="description">
-            {"I'm currently studying Computer Science at the University of Waterloo. I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. I'm seeking Fall 2024 internship opportunities, and I look forward to making an impact wherever I go next!"}
+            I&apos;m currently studying Computer Science at the University of Waterloo. 
+            I&apos;ve had some great experiences working at&nbsp;
+            <a href="https://www.faire.com/">Faire</a>,&nbsp;
+            <a href="https://charitycan.ca/">CharityCAN</a>,&nbsp;
+            <a href="https://adentro.com/">Adentro</a>, and&nbsp;
+            <a href="https://atomic.vc/">Atomic VC</a>.
+            I&apos;m seeking Fall 2024 internship opportunities, and I look forward to making an impact wherever I go next!
           </p>
         </div>
         {/* <a href="https://emoji.gg/emoji/8771_blobheart">

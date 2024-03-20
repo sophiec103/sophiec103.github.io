@@ -106,9 +106,10 @@ a {
   }
 }
 
-/* h1 {
-  font-family: var(--font-encode-semi-expanded)
-} */
-h1 {
-  font-family: var(--font-roboto-mono);
+a {
+  color: #FF78A8;
+  &:hover {
+      color: #FFABC9 ;
+
+  }
 }
