@@ -1,3 +1,4 @@
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
@@ -104,4 +105,11 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+/* h1 {
+  font-family: var(--font-encode-semi-expanded)
+} */
+h1 {
+  font-family: var(--font-roboto-mono);
 }
