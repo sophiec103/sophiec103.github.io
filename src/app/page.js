@@ -14,11 +14,11 @@ export default function Home() {
           <h1 className={`name ${encode.className}`}>I&apos;m Sophie Chan</h1>
           <p className="description">
             I&apos;m currently studying Computer Science at the University of Waterloo. 
-            I&apos;ve had some great experiences working at&nbsp;
-            <a href="https://www.faire.com/">Faire</a>,&nbsp;
-            <a href="https://charitycan.ca/">CharityCAN</a>,&nbsp;
-            <a href="https://adentro.com/">Adentro</a>, and&nbsp;
-            <a href="https://atomic.vc/">Atomic VC</a>.
+            I&apos;ve had some great experiences working at 
+            <a href="https://www.faire.com/"> Faire</a>,
+            <a href="https://charitycan.ca/"> CharityCAN</a>,
+            <a href="https://adentro.com/"> Adentro</a>, and
+            <a href="https://atomic.vc/"> Atomic VC</a>.
             I&apos;m seeking Fall 2024 internship opportunities, and I look forward to making an impact wherever I go next!
           </p>
         </div>
