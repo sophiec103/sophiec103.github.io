@@ -1,0 +1,28 @@
+.Home {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+
+  .content-wrapper {
+    display: flex;
+    width: 70vw;
+    gap: 25px;
+
+    .text-wrapper {
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+        max-width: 75%;
+        gap: 10px;
+    }
+
+    .profile-picture {
+        max-height: 50vh;
+    }
+  }
+
+
+
+}
