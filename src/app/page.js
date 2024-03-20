@@ -12,9 +12,9 @@ export default function Home() {
           <h2 className="greeting">Hello!</h2>
           <h1 className={`name ${encode.className}`}>I'm Sophie Chan</h1>
           <p className="description">
-            I'm studying Computer Science at the University of Waterloo, with an anticipated graduation in 2026.
+            I'm currently studying Computer Science at the University of Waterloo, with an anticipated graduation in 2026.
             I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. 
-            I am currently seeking internship opportunities for the Fall 2024 term.
+            I'm in the process of seeking internship opportunities for the Fall 2024 term.
           </p>
         </div>
         {/* <a href="https://emoji.gg/emoji/8771_blobheart">
