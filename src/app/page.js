@@ -1,5 +1,5 @@
 import Image from "next/image";
-import "./home.scss";
+import './../css/home.scss'
 import { Encode_Sans_Semi_Expanded } from "next/font/google";
 import path from "path";
 
