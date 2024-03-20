@@ -1,20 +1,20 @@
 import Image from "next/image";
-import "./../css/home.scss";
+import "./home.scss";
 import { Encode_Sans_Semi_Expanded } from "next/font/google";
+import path from "path";
 
 const encode = Encode_Sans_Semi_Expanded({ subsets: ["latin"], weight: ["600"] });
 
 export default function Home() {
+  console.log(path.join(__dirname, 'src','css'))
   return (
     <main className="Home">
       <div className="content-wrapper">
         <div className="text-wrapper">
           <h2 className="greeting">Hello!</h2>
-          <h1 className={`name ${encode.className}`}>I'm Sophie Chan</h1>
+          <h1 className={`name ${encode.className}`}>{"I'm Sophie Chan"}</h1>
           <p className="description">
-            I'm currently studying Computer Science at the University of Waterloo, with an anticipated graduation in 2026.
-            I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. 
-            I'm in the process of seeking internship opportunities for the Fall 2024 term.
+            {"I'm currently studying Computer Science at the University of Waterloo, with an anticipated graduation in 2026. I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. I'm in the process of seeking internship opportunities for the Fall 2024 term."}
           </p>
         </div>
         {/* <a href="https://emoji.gg/emoji/8771_blobheart">
