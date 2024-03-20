@@ -3,7 +3,7 @@ import './../css/home.scss'
 import { Encode_Sans_Semi_Expanded } from "next/font/google";
 import path from "path";
 
-const encode = Encode_Sans_Semi_Expanded({ subsets: ["latin"], weight: ["600"] });
+const encode = Encode_Sans_Semi_Expanded({ subsets: ["latin"], weight: ["700"] });
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
           <h2 className="greeting">Hello!</h2>
           <h1 className={`name ${encode.className}`}>{"I'm Sophie Chan"}</h1>
           <p className="description">
-            {"I'm currently studying Computer Science at the University of Waterloo, with an anticipated graduation in 2026. I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. I'm seeking internship opportunities for the Fall 2024 term, and I look forward to making an impact wherever I go next!"}
+            {"I'm currently studying Computer Science at the University of Waterloo. I've had some great experiences working at Faire, CharityCAN, Adentro, and Atomic VC. I'm seeking Fall 2024 internship opportunities, and I look forward to making an impact wherever I go next!"}
           </p>
         </div>
         {/* <a href="https://emoji.gg/emoji/8771_blobheart">
