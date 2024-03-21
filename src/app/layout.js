@@ -1,8 +1,9 @@
 import { Inter } from "next/font/google";
-import { Red_Hat_Display } from "next/font/google";
-import "./globals.css";
+import { Red_Hat_Text } from "next/font/google";
+import Navbar from "./navbar";
+import "./globals.scss";
 
-const redhat = Red_Hat_Display({ subsets: ["latin"] });
+const redhat = Red_Hat_Text({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Sophie Chan",
@@ -12,7 +13,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={redhat.className}>{children}</body>
+      <body className={redhat.className}>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,3 +1,5 @@
+@use "./../app/globals.scss";
+
 .Home {
   display: flex;
   height: 100vh;
@@ -7,14 +9,27 @@
 
   .content-wrapper {
     display: flex;
-    width: 60vw;
-    gap: 45px;
+    width: 65vw;
+    gap: 50px;
+
+    .icon-wrapper {
+      justify-content: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      a {
+        color: black;
+        &:hover {
+          color: globals.$sophie-pink;
+        }
+      }
+    }
 
     .text-wrapper {
         justify-content: center;
         display: flex;
         flex-direction: column;
-        max-width: 75%;
 
         .name {
             font-size: 36px;
@@ -23,10 +38,7 @@
     }
 
     .profile-picture {
-        max-height: 48vh;
+        max-height: 45vh;
     }
   }
-
-
-
 }
