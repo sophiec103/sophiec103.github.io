@@ -41,7 +41,7 @@ export default function Home() {
             height="30px"
             alt="blobheart"
           /> */}
-        <img src="/sophie.png" alt="Sophie profile picture" className="profile-picture" />
+        <img src="/sophie.jpg" alt="Sophie profile picture" className="profile-picture" />
       </div>
     </main>
   );
