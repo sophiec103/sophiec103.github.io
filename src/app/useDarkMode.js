@@ -10,6 +10,11 @@ export function useDarkMode() {
     }
   }, []);
 
+  useEffect(() => {
+    const mode = isLightMode ? "light" : "dark";
+    document.body.setAttribute("data-theme", mode);
+  }, [isLightMode]);
+
   const toggleDarkMode = () => {
     setIsLightMode(prevMode => !prevMode);
     document.body.classList.toggle('dark-mode');

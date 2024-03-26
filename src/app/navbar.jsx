@@ -11,7 +11,9 @@ export default function Navbar(className) {
 
   return (
     <nav className={className}>
-      <div className="left-section">SC</div>
+      <div className="left-section">
+        <img src="/logo.svg" alt="Sophie logo" />
+      </div>
       <div className="right-section">
         <IconButton
           color="inherit"

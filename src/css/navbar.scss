@@ -8,8 +8,12 @@ nav {
   font-weight: 500;
 
   .left-section {
+    height: 100%;
     display: flex;
     flex-wrap: wrap;
     align-content: center;
+    img {
+      height: 35px;
+    }
   }
 }
