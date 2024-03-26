@@ -5,6 +5,7 @@ import "./../css/navbar.scss";
 import { IconButton } from '@mui/material';
 import { LuSun, LuMoon } from "react-icons/lu";
 import { useDarkMode } from './useDarkMode';
+import LogoSvg from "./logo";
 
 export default function Navbar(className) {
   const [isLightMode, toggleDarkMode] = useDarkMode();
@@ -12,7 +13,7 @@ export default function Navbar(className) {
   return (
     <nav className={className}>
       <div className="left-section">
-        <img src="/logo.svg" alt="Sophie logo" />
+        <LogoSvg darkMode={!isLightMode}/>
       </div>
       <div className="right-section">
         <IconButton
