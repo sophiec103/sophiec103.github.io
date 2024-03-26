@@ -13,6 +13,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+          <link rel="icon" href="./logo.svg" />
+        </head>
       <body className={redhat.className}>
         <Navbar />
         {children}
