@@ -1,7 +1,9 @@
+"use client";
+
 import "./../css/home.scss";
 import { Encode_Sans_Semi_Expanded } from "next/font/google";
 import { FaGithub, FaLinkedin, FaFileLines } from "react-icons/fa6";
-import { BsFileEarmarkPersonFill } from "react-icons/bs";
+import { useDarkMode } from './useDarkMode';
 
 const encode = Encode_Sans_Semi_Expanded({
   subsets: ["latin"],
@@ -9,10 +11,12 @@ const encode = Encode_Sans_Semi_Expanded({
 });
 
 export default function Home() {
+  const [isLightMode] = useDarkMode();
+
   return (
     <main className="Home">
       <div className="content-wrapper">
-        <div className="icon-wrapper">
+        <div className={`icon-wrapper ${isLightMode ? '' : 'dark-mode'}`}>
           <a href="https://github.com/sophiec103"><FaGithub size={'1.1em'}/> </a>
           <a href="#"><FaFileLines size={'1.1em'} /> </a>
           <a href="https://www.linkedin.com/in/s94chan/"><FaLinkedin  size={'1.1em'}/> </a>

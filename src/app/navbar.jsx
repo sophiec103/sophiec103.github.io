@@ -1,15 +1,13 @@
 "use client"; // This is a client component
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./../css/navbar.scss";
 import { IconButton } from '@mui/material';
-
+import { LuSun, LuMoon } from "react-icons/lu";
+import { useDarkMode } from './useDarkMode';
 
 export default function Navbar(className) {
-
-  // const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  const [isLightMode, setIsLightMode] = useState(true);
+  const [isLightMode, toggleDarkMode] = useDarkMode();
 
   return (
     <nav className={className}>
@@ -17,22 +15,12 @@ export default function Navbar(className) {
       <div className="right-section">
         <IconButton
           color="inherit"
-          onClick={() => {
-            console.log("HERE", isLightMode)
-            if (isLightMode) {
-              document.html.classList.remove('dark');
-            } else {
-              document.html.classList.add('dark');
-            }
-            setIsLightMode(!isLightMode)
-          }}
+          onClick={toggleDarkMode}
           aria-label="Dark mode toggle"
         >
-          {isLightMode ? "🌞" : "🌚"}
+          {isLightMode ? <LuSun /> : <LuMoon />}
         </IconButton>
       </div>
     </nav>
   );
 }
-
-

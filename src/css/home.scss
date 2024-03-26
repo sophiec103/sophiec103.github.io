@@ -2,7 +2,7 @@
 
 .Home {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 60px);
   justify-content: center;
   align-content: center;
   flex-wrap: wrap;
@@ -19,7 +19,7 @@
       gap: 12px;
 
       a {
-        color: black;
+        color: globals.$sophie-black;
         &:hover {
           color: globals.$sophie-pink;
         }
@@ -30,7 +30,7 @@
         justify-content: center;
         display: flex;
         flex-direction: column;
-
+        
         .name {
             font-size: 36px;
             padding-bottom: 15px;
