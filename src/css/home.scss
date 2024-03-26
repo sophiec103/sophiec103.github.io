@@ -33,6 +33,7 @@
     .profile-picture {
         max-height: 45vh;
         border-radius: 50%;
+        user-select: none;
     }
   }
 }
