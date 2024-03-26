@@ -17,15 +17,28 @@ $sophie-black: #121212;
   --accent-colour: #{$sophie-light-pink}; // ie link hover
 }
 
-
-[data-theme="dark"] {
-  --foreground-rgb: white;
-  --background-rgb: #{$sophie-black};
-  --primary-colour: #{$sophie-pink};
-  --accent-colour: #{$sophie-light-pink};
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: white;
+    --background-rgb: #{$sophie-black};
+    --primary-colour: #{$sophie-pink};
+    --accent-colour: #{$sophie-light-pink};
+  }
 }
 
-// @media (prefers-color-scheme: dark)
+[data-theme="dark"] {
+    --foreground-rgb: white;
+    --background-rgb: #{$sophie-black};
+    --primary-colour: #{$sophie-pink};
+    --accent-colour: #{$sophie-light-pink};
+}
+  
+[data-theme="light"] {
+    --foreground-rgb: #{$sophie-black};
+    --background-rgb: white;
+    --primary-colour: #{$sophie-pink};
+    --accent-colour: #{$sophie-light-pink};
+}
 
 * {
   box-sizing: border-box;
