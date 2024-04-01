@@ -17,9 +17,9 @@ export default function Home() {
     <main className="Home">
       <div className="content-wrapper">
         <div className={`icon-wrapper ${isLightMode ? '' : 'dark-mode'}`}>
-          <a href="https://github.com/sophiec103"><FaGithub size={'1.1em'}/> </a>
-          <a href="#"><FaFileLines size={'1.1em'} /> </a>
-          <a href="https://www.linkedin.com/in/s94chan/"><FaLinkedin  size={'1.1em'}/> </a>
+          <a href="https://github.com/sophiec103"><FaGithub size={'1.25em'}/> </a>
+          <a href="#"><FaFileLines size={'1.25em'} /> </a>
+          <a href="https://www.linkedin.com/in/s94chan/"><FaLinkedin  size={'1.25em'}/> </a>
         </div>
         <div className="text-wrapper">
           <h2 className="greeting">Hello!</h2>
