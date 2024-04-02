@@ -2,7 +2,7 @@
 
 .Home {
   display: flex;
-  height: calc(100vh - 120px);
+  min-height: calc(100vh - 120px);
   justify-content: center;
   align-content: center;
   flex-wrap: wrap;
@@ -68,7 +68,7 @@
       .icon-wrapper {
         flex-direction: row;
         align-items: flex-end;
-        padding-top: 5px;
+        padding: 5px;
       }
 
       .profile-picture {
