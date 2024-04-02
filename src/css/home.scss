@@ -54,7 +54,8 @@
       flex-direction: column-reverse;
       justify-content: center;
       width: 75vw;
-      gap: 25px;
+      gap: 15px;
+      padding-bottom: 50px;
 
       .text-wrapper {
         .greeting {
@@ -69,6 +70,7 @@
       .icon-wrapper {
         flex-direction: row;
         align-items: flex-end;
+        padding-top: 5px;
       }
 
       .profile-picture {
