@@ -2,7 +2,7 @@
 
 .Home {
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 120px);
   justify-content: center;
   align-content: center;
   flex-wrap: wrap;
@@ -12,7 +12,6 @@
     align-items: center;
     width: 65vw;
     gap: 50px;
-    padding-bottom: 30px;
 
     .icon-wrapper {
       justify-content: center;
@@ -55,7 +54,6 @@
       justify-content: center;
       width: 75vw;
       gap: 15px;
-      padding-bottom: 50px;
 
       .text-wrapper {
         .greeting {
