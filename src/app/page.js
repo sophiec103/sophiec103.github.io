@@ -4,6 +4,7 @@ import "./../css/home.scss";
 import { Encode_Sans_Semi_Expanded } from "next/font/google";
 import { FaGithub, FaLinkedin, FaFileLines } from "react-icons/fa6";
 import { useDarkMode } from './useDarkMode';
+import { TypeAnimation } from 'react-type-animation';
 
 const encode = Encode_Sans_Semi_Expanded({
   subsets: ["latin"],
@@ -12,6 +13,24 @@ const encode = Encode_Sans_Semi_Expanded({
 
 export default function Home() {
   const [isLightMode] = useDarkMode();
+  const titles = [
+    "Sophie Chan",
+    2000,
+    "a Software Engineer",
+    1500,
+    "a CS Student",
+    1500,
+    "a Problem Solver",
+    1500,
+    "a Photographer",
+    1500,
+    "an Explorer",
+    1500,
+    "Chinese Canadian",
+    1500,
+    "excited to connect!",
+    1500,
+  ];
 
   return (
     <main className="Home">
@@ -23,7 +42,15 @@ export default function Home() {
         </div>
         <div className="text-wrapper">
           <h2 className="greeting">Hello!</h2>
-          <h1 className={`name ${encode.className}`}>I&apos;m Sophie Chan</h1>
+          <h1 className={`name ${encode.className}`}>
+            I&apos;m&nbsp;
+            <TypeAnimation
+              sequence={titles}
+              speed={50}
+              repeat={Infinity}
+              cursor={true}
+            />
+          </h1>
           <p className="description">
             I&apos;m currently studying Computer Science at the University of
             Waterloo. I&apos;ve had some really great experiences working at
