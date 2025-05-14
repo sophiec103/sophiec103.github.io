@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import "./../css/navbar.scss";
-import { IconButton } from '@mui/material';
+import { IconButton } from "@mui/material";
 import { LuSun, LuMoon, LuMenu, LuX } from "react-icons/lu";
-import { useDarkMode } from './useDarkMode';
+import { useDarkMode } from "./useDarkMode";
 import LogoSvg from "./logo";
 
 export default function Navbar() {
@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`navbar ${!isLightMode ? "dark" : ""}`}>
+      <nav className={`navbar ${isLightMode ? "light" : "dark"}`}>
         <div className="left-section">
           <LogoSvg darkMode={!isLightMode} />
         </div>
@@ -27,48 +27,67 @@ export default function Navbar() {
           <IconButton
             onClick={() => setMenuOpen(true)}
             className="hamburger mobile-only"
-            color="inherit"
             aria-label="Open menu"
           >
-            <LuMenu size={24} />
+            <LuMenu />
           </IconButton>
 
           <div className="desktop-only">
             <IconButton
               onClick={toggleDarkMode}
-              color="inherit"
               aria-label="Toggle dark mode"
             >
-              {isLightMode ? <LuSun /> : <LuMoon />}
+              {isLightMode ? (
+                <LuSun className="theme-toggle-icon" />
+              ) : (
+                <LuMoon className="theme-toggle-icon" />
+              )}
             </IconButton>
           </div>
         </div>
       </nav>
 
-      <div className={`side-menu ${menuOpen ? "open" : ""} ${!isLightMode ? "dark" : ""}`}>
+      <div
+        className={`side-menu ${menuOpen ? "open" : ""} ${
+          isLightMode ? "light" : "dark"
+        }`}
+      >
         <div className="side-menu-header">
           <div className="side-menu-header-left">
-            <button onClick={toggleDarkMode} className="toggle-btn" aria-label="Toggle dark mode" color="inherit">
-              {isLightMode ? <LuSun size={20} /> : <LuMoon size={20} />}
+            <button
+              onClick={toggleDarkMode}
+              className="toggle-btn"
+              aria-label="Toggle dark mode"
+            >
+              {isLightMode ? (
+                <LuSun className="theme-toggle-icon" />
+              ) : (
+                <LuMoon className="theme-toggle-icon" />
+              )}
             </button>
           </div>
           <IconButton
             onClick={() => setMenuOpen(false)}
             className="close-btn"
-            color="inherit"
             aria-label="Close menu"
           >
-            <LuX size={22} />
+            <LuX />
           </IconButton>
         </div>
 
         <div className="side-menu-items">
-          <a href="/" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="/photography" onClick={() => setMenuOpen(false)}>Photography</a>
+          <a href="/" onClick={() => setMenuOpen(false)}>
+            Home
+          </a>
+          <a href="/photography" onClick={() => setMenuOpen(false)}>
+            Photography
+          </a>
         </div>
       </div>
 
-      {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
+      {menuOpen && (
+        <div className="overlay" onClick={() => setMenuOpen(false)} />
+      )}
     </>
   );
 }

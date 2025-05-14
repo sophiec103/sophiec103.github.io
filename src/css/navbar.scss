@@ -7,8 +7,20 @@ nav.navbar {
   align-items: center;
   height: 60px;
 
+  &.light {
+    .theme-toggle-icon {
+      color: $sophie-black;
+    }
+  }
+
   &.dark {
+    background-color: $sophie-black;
+
     .center-section a {
+      color: white;
+    }
+
+    .theme-toggle-icon {
       color: white;
     }
   }
@@ -103,15 +115,23 @@ nav.navbar {
     right: 0;
   }
 
+  &.light {
+    .theme-toggle-icon {
+      color: $sophie-black;
+    }
+    a {
+      color: $sophie-black;
+    }
+  }
+
   &.dark {
     background-color: $sophie-black;
 
-    .side-menu-items a,
-    .toggle-btn {
+    .theme-toggle-icon {
       color: white;
     }
 
-    .toggle-btn svg {
+    a {
       color: white;
     }
   }
@@ -137,20 +157,21 @@ nav.navbar {
         border: none;
         cursor: pointer;
         padding: 5px;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
 
-        svg {
+        svg.theme-toggle-icon {
           width: 25px;
           height: 25px;
         }
       }
     }
 
-    .MuiIconButton-root {
+    .close-btn {
       padding: 5px;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
     }
   }
 
@@ -163,12 +184,7 @@ nav.navbar {
 
     a {
       text-decoration: none;
-      color: $sophie-black;
       font-size: 18px;
-
-      .dark & {
-        color: white;
-      }
     }
   }
 }
