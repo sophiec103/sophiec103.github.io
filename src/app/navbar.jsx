@@ -48,7 +48,7 @@ export default function Navbar() {
       <div className={`side-menu ${menuOpen ? "open" : ""} ${!isLightMode ? "dark" : ""}`}>
         <div className="side-menu-header">
           <div className="side-menu-header-left">
-            <button onClick={toggleDarkMode} className="toggle-btn" aria-label="Toggle dark mode">
+            <button onClick={toggleDarkMode} className="toggle-btn" aria-label="Toggle dark mode" color="inherit">
               {isLightMode ? <LuSun size={20} /> : <LuMoon size={20} />}
             </button>
           </div>
