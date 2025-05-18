@@ -8,7 +8,8 @@ nav.navbar {
   height: 60px;
 
   &.light {
-    .theme-toggle-icon {
+    .theme-toggle-icon,
+    .hamburger svg {
       color: $sophie-black;
     }
   }
@@ -20,7 +21,8 @@ nav.navbar {
       color: white;
     }
 
-    .theme-toggle-icon {
+    .theme-toggle-icon,
+    .hamburger svg {
       color: white;
     }
   }
@@ -116,9 +118,11 @@ nav.navbar {
   }
 
   &.light {
-    .theme-toggle-icon {
+    .theme-toggle-icon,
+    .close-btn svg {
       color: $sophie-black;
     }
+
     a {
       color: $sophie-black;
     }
@@ -127,7 +131,8 @@ nav.navbar {
   &.dark {
     background-color: $sophie-black;
 
-    .theme-toggle-icon {
+    .theme-toggle-icon,
+    .close-btn svg {
       color: white;
     }
 
