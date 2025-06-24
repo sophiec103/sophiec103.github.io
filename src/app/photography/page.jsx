@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 const imagePaths = [];
 
-for (let i = 1; i <= 40; i++) {
+for (let i = 1; i <= 45; i++) {
   imagePaths.push(`/photos/${i}.jpg`);
 }
 
