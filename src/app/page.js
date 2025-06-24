@@ -59,8 +59,7 @@ export default function Home() {
             <a href="https://www.faire.com/"> Faire</a>,
             <a href="https://charitycan.ca/"> CharityCAN</a>,
             <a href="https://adentro.com/"> Adentro</a>, and
-            <a href="https://atomic.vc/"> Atomic VC</a>. I&apos;m seeking Fall
-            2025 internship opportunities, and I look forward to making an
+            <a href="https://atomic.vc/"> Atomic VC</a>. I&apos;m seeking 2026 new grad opportunities, and I look forward to making an
             impact wherever I go next!
           </p>
         </div>
