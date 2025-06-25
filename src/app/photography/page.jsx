@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 const imagePaths = [];
-
 for (let i = 1; i <= 46; i++) {
   imagePaths.push(`/photos/${i}.jpg`);
 }
@@ -16,6 +15,14 @@ export default function Photography() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [columns, setColumns] = useState([[], [], []]);
   const [flatImages, setFlatImages] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const loadImageDimensions = async () => {
@@ -84,37 +91,64 @@ export default function Photography() {
         <p>Captured moments from my adventures</p>
       </div>
 
-      {columns.flat().length > 0 ? (
+      {flatImages.length > 0 ? (
         <div className="gallery-container">
-          <div className="gallery-columns">
-            {columns.map((column, colIndex) => (
-              <div key={colIndex} className="gallery-column">
-                {column.map((image, index) => {
-                  const flatIndex = flatImages.findIndex(img => img.src === image.src);
-                  return (
-                    <div
-                      key={index}
-                      className="gallery-item"
-                      onClick={() => setSelectedIndex(flatIndex)}
-                    >
-                      <Image
-                        src={image.src}
-                        alt={image.alt}
-                        width={image.width}
-                        height={image.height}
-                        style={{
-                          width: '100%',
-                          height: 'auto',
-                          display: 'block',
-                        }}
-                        unoptimized={true}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+          {isMobile ? (
+            // photos in chronological order (single column)
+            <div className="gallery-column">
+              {flatImages.map((image, index) => (
+                <div
+                  key={index}
+                  className="gallery-item"
+                  onClick={() => setSelectedIndex(index)}
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      display: 'block',
+                    }}
+                    unoptimized={true}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            // photos balanced by height and chronological order (three columns)
+            <div className="gallery-columns">
+              {columns.map((column, colIndex) => (
+                <div key={colIndex} className="gallery-column">
+                  {column.map((image, index) => {
+                    const flatIndex = flatImages.findIndex(img => img.src === image.src);
+                    return (
+                      <div
+                        key={index}
+                        className="gallery-item"
+                        onClick={() => setSelectedIndex(flatIndex)}
+                      >
+                        <Image
+                          src={image.src}
+                          alt={image.alt}
+                          width={image.width}
+                          height={image.height}
+                          style={{
+                            width: '100%',
+                            height: 'auto',
+                            display: 'block',
+                          }}
+                          unoptimized={true}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="loading">Loading images...</div>
