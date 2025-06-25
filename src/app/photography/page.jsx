@@ -16,6 +16,7 @@ export default function Photography() {
   const [columns, setColumns] = useState([[], [], []]);
   const [flatImages, setFlatImages] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -83,6 +84,24 @@ export default function Photography() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedIndex, flatImages.length]);
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && selectedIndex > 0) {
+        setSelectedIndex(selectedIndex - 1); // swipe right
+      } else if (diff < 0 && selectedIndex < flatImages.length - 1) {
+        setSelectedIndex(selectedIndex + 1); // swipe left
+      }
+    }
+    setTouchStartX(null);
+  };
 
   return (
     <main className={`Photography ${!isLightMode ? 'dark-mode' : ''}`}>
@@ -155,7 +174,12 @@ export default function Photography() {
       )}
 
       {selectedIndex !== null && flatImages[selectedIndex] && (
-        <div className="image-modal" onClick={() => setSelectedIndex(null)}>
+        <div
+          className="image-modal"
+          onClick={() => setSelectedIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="modal-content">
             <img
               src={flatImages[selectedIndex].src}
