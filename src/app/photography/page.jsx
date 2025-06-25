@@ -13,8 +13,9 @@ for (let i = 1; i <= 46; i++) {
 
 export default function Photography() {
   const [isLightMode] = useDarkMode();
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [columns, setColumns] = useState([[], [], []]);
+  const [flatImages, setFlatImages] = useState([]);
 
   useEffect(() => {
     const loadImageDimensions = async () => {
@@ -48,6 +49,7 @@ export default function Photography() {
       }
 
       setColumns(colImages);
+      setFlatImages(loadedImages);
     };
 
     loadImageDimensions();
@@ -55,19 +57,25 @@ export default function Photography() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setSelectedImage(null);
+      if (selectedIndex !== null) {
+        if (e.key === 'Escape') {
+          setSelectedIndex(null);
+        } else if (e.key === 'ArrowLeft') {
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        } else if (e.key === 'ArrowRight') {
+          setSelectedIndex((prev) => (prev < flatImages.length - 1 ? prev + 1 : prev));
+        }
       }
     };
-  
-    if (selectedImage) {
+
+    if (selectedIndex !== null) {
       window.addEventListener('keydown', handleKeyDown);
     }
-  
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedImage]);
+  }, [selectedIndex, flatImages.length]);
 
   return (
     <main className={`Photography ${!isLightMode ? 'dark-mode' : ''}`}>
@@ -81,26 +89,29 @@ export default function Photography() {
           <div className="gallery-columns">
             {columns.map((column, colIndex) => (
               <div key={colIndex} className="gallery-column">
-                {column.map((image, index) => (
-                  <div
-                    key={index}
-                    className="gallery-item"
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      width={image.width}
-                      height={image.height}
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        display: 'block',
-                      }}
-                      unoptimized={true}
-                    />
-                  </div>
-                ))}
+                {column.map((image, index) => {
+                  const flatIndex = flatImages.findIndex(img => img.src === image.src);
+                  return (
+                    <div
+                      key={index}
+                      className="gallery-item"
+                      onClick={() => setSelectedIndex(flatIndex)}
+                    >
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        width={image.width}
+                        height={image.height}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          display: 'block',
+                        }}
+                        unoptimized={true}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -109,12 +120,12 @@ export default function Photography() {
         <div className="loading">Loading images...</div>
       )}
 
-      {selectedImage && (
-        <div className="image-modal" onClick={() => setSelectedImage(null)}>
+      {selectedIndex !== null && flatImages[selectedIndex] && (
+        <div className="image-modal" onClick={() => setSelectedIndex(null)}>
           <div className="modal-content">
             <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
+              src={flatImages[selectedIndex].src}
+              alt={flatImages[selectedIndex].alt}
               style={{
                 width: '100%',
                 height: '100%',
