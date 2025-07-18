@@ -132,7 +132,7 @@ export default function Photography() {
   };
 
   return (
-    <main className={`Photography ${!isLightMode ? 'dark-mode' : ''}`}>
+    <main className="Photography">
       <div className="gallery-header">
         <h1>Photography</h1>
         <p>Captured moments from my adventures</p>

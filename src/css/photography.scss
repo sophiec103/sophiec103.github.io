@@ -3,11 +3,8 @@
 .Photography {
   padding: 2rem 1.5rem;
   min-height: 100vh;
-
-  &.dark-mode {
-    background-color: $sophie-black;
-    color: white;
-  }
+  background-color: var(--background-rgb);
+  color: var(--foreground-rgb);
 
   .gallery-header {
     text-align: center;
