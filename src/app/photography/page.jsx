@@ -2,11 +2,11 @@
 
 import "../../css/photography.scss";
 import { useDarkMode } from '../useDarkMode';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 
 const imagePaths = [];
-for (let i = 1; i <= 46; i++) {
+for (let i = 1; i <= 47; i++) {
   imagePaths.push(`/photos/${i}.jpg`);
 }
 
@@ -17,6 +17,18 @@ export default function Photography() {
   const [flatImages, setFlatImages] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [touchStartX, setTouchStartX] = useState(null);
+
+  const columnGroups = useMemo(() => [
+    [36, 39, 44],
+    [41, 45],
+  ], []);
+
+  const groupMap = {};
+  columnGroups.forEach((group, groupIdx) => {
+    group.forEach(num => {
+      groupMap[num] = groupIdx;
+    });
+  });
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -49,11 +61,27 @@ export default function Photography() {
 
       const colHeights = [0, 0, 0];
       const colImages = [[], [], []];
+      const placed = new Set();
 
-      for (const img of loadedImages) {
-        const minIndex = colHeights.indexOf(Math.min(...colHeights));
-        colImages[minIndex].push(img);
-        colHeights[minIndex] += img.ratio;
+      for (let i = 0; i < loadedImages.length; i++) {
+        const imgNum = i + 1;
+        if (placed.has(imgNum)) continue;
+
+        const group = columnGroups.find(g => g[0] === imgNum);
+        if (group) {
+          const minIndex = colHeights.indexOf(Math.min(...colHeights));
+          for (const groupImgNum of group) {
+            const imgIdx = groupImgNum - 1;
+            colImages[minIndex].push(loadedImages[imgIdx]);
+            colHeights[minIndex] += loadedImages[imgIdx].ratio;
+            placed.add(groupImgNum);
+          }
+        } else {
+          const minIndex = colHeights.indexOf(Math.min(...colHeights));
+          colImages[minIndex].push(loadedImages[i]);
+          colHeights[minIndex] += loadedImages[i].ratio;
+          placed.add(imgNum);
+        }
       }
 
       setColumns(colImages);
@@ -61,7 +89,7 @@ export default function Photography() {
     };
 
     loadImageDimensions();
-  }, []);
+  }, [columnGroups]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
