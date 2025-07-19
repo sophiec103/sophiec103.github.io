@@ -19,8 +19,7 @@ export default function Photography() {
   const [touchStartX, setTouchStartX] = useState(null);
 
   const columnGroups = useMemo(() => [
-    [36, 39, 44],
-    [41, 45],
+    [41, 44],
   ], []);
 
   const groupMap = {};
