@@ -15,7 +15,9 @@ export default function Navbar() {
     <>
       <nav className={`navbar ${isLightMode ? "light" : "dark"}`}>
         <div className="left-section">
-          <LogoSvg darkMode={!isLightMode} />
+          <a href="/">
+            <LogoSvg darkMode={!isLightMode} />
+          </a>
         </div>
 
         <div className="center-section desktop-only">
