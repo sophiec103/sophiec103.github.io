@@ -4,8 +4,10 @@ export function useDarkMode() {
   const [isLightMode, setIsLightMode] = useState(() => {
     const isClient = typeof window !== 'undefined';
     if (isClient) {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return !prefersDark;
+      const stored = localStorage.getItem("isLightMode");
+      if (stored !== null) return stored === "true";
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return !prefersDark;
     }
     return true;
   });
@@ -13,6 +15,7 @@ export function useDarkMode() {
   useEffect(() => {
     const mode = isLightMode ? "light" : "dark";
     document.body.setAttribute("data-theme", mode);
+    localStorage.setItem("isLightMode", isLightMode);
   }, [isLightMode]);
 
   const toggleDarkMode = () => {
