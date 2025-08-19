@@ -5,6 +5,7 @@ import { Encode_Sans_Semi_Expanded } from "next/font/google";
 import { FaGithub, FaLinkedin, FaFileLines } from "react-icons/fa6";
 import { useDarkMode } from './useDarkMode';
 import { TypeAnimation } from 'react-type-animation';
+import React, { useState, useRef } from "react";
 
 const encode = Encode_Sans_Semi_Expanded({
   subsets: ["latin"],
@@ -31,6 +32,32 @@ export default function Home() {
     "excited to connect!",
     1500,
   ];
+
+  const [armed, setArmed] = useState(false);
+  const [imgIndex, setImgIndex] = useState(0);
+  const armTimeout = useRef(null);
+
+  const imageCount = 14;
+  const images = Array.from({ length: imageCount }, (_, i) =>
+    i === 0 ? "/sophie.jpg" : `/sophie${i}.jpg`
+  );
+
+  const handleImgClick = () => {
+    if (!armed) {
+      setArmed(true);
+      armTimeout.current = setTimeout(() => setArmed(false), 1000);
+    } else {
+      setImgIndex((prev) => (prev + 1) % images.length);
+      setArmed(false);
+      clearTimeout(armTimeout.current);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => clearTimeout(armTimeout.current);
+  }, []);
+
+  const cursorStyle = armed ? "pointer" : "default";
 
   return (
     <main className="Home">
@@ -69,7 +96,13 @@ export default function Home() {
             height="30px"
             alt="blobheart"
           /> */}
-        <img src="/sophie.jpg" alt="Sophie profile picture" className="profile-picture" />
+        <img
+          src={images[imgIndex]}
+          alt="Sophie profile picture"
+          className="profile-picture"
+          style={{ cursor: cursorStyle }}
+          onClick={handleImgClick}
+        />
       </div>
     </main>
   );
