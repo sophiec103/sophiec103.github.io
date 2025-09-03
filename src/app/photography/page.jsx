@@ -93,7 +93,7 @@ export default function Photography() {
 
       // batch loading
       if (endIdx < imagePaths.length) {
-        setTimeout(loadBatch, 300);
+        setTimeout(loadBatch, 50);
       }
     };
 
@@ -170,7 +170,6 @@ export default function Photography() {
                     height={image.height}
                     style={{ width: "100%", height: "auto", display: "block" }}
                     unoptimized={true}
-                    loading="lazy"
                   />
                 </div>
               ))}
@@ -201,7 +200,6 @@ export default function Photography() {
                             display: "block",
                           }}
                           unoptimized={true}
-                          loading="lazy"
                         />
                       </div>
                     );
