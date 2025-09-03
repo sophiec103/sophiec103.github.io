@@ -5,7 +5,7 @@ import { useDarkMode } from "../useDarkMode";
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 
-const numImages = 47;
+const numImages = 50;
 const imagePaths = [];
 for (let i = 1; i <= numImages; i++) {
   imagePaths.push(`/photos/${i}.jpg`);
