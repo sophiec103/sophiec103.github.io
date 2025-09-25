@@ -1,9 +1,9 @@
 "use client";
 
 import "../../css/photography.scss";
+import Gallery from "../../components/Gallery";
 import { useDarkMode } from "../useDarkMode";
-import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 const numImages = 50;
 const imagePaths = [];
@@ -15,11 +15,12 @@ const BATCH_SIZE = 10;
 
 export default function Photography() {
   const [_isLightMode] = useDarkMode();
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [columns, setColumns] = useState([[], [], []]);
   const [flatImages, setFlatImages] = useState([]);
+  const [columns, setColumns] = useState([[], [], []]);
   const [isMobile, setIsMobile] = useState(false);
-  const [touchStartX, setTouchStartX] = useState(null);
+  const [adventuresHighlighted, setAdventuresHighlighted] = useState(false);
+  const ignoreNextClickRef = useRef(false);
+  const pendingNavRef = useRef(null);
 
   const columnGroups = useMemo(() => [[41, 44]], []);
 
@@ -106,129 +107,109 @@ export default function Photography() {
     };
   }, [flatImages, columnGroups]);
 
+  const galleryImages = isMobile
+    ? flatImages
+    : columns.flat();
+
+  const galleryColumns = isMobile ? [galleryImages] : columns;
+
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (selectedIndex !== null) {
-        if (e.key === "Escape") {
-          setSelectedIndex(null);
-        } else if (e.key === "ArrowLeft") {
-          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-        } else if (e.key === "ArrowRight") {
-          setSelectedIndex((prev) =>
-            prev < flatImages.length - 1 ? prev + 1 : prev
-          );
-        }
+    const handleSelection = () => {
+      const selection = window.getSelection();
+      setAdventuresHighlighted(
+        selection && selection.toString().trim().includes("adventures")
+      );
+    };
+    document.addEventListener("mouseup", handleSelection);
+    document.addEventListener("selectionchange", handleSelection);
+    return () => {
+      document.removeEventListener("mouseup", handleSelection);
+      document.removeEventListener("selectionchange", handleSelection);
+    };
+  }, []);
+
+  const handleAdventuresClick = (e) => {
+    const selection = window.getSelection();
+    const isHighlightedNow =
+      adventuresHighlighted ||
+      (selection && selection.toString().trim().includes("adventures"));
+
+    if (!isHighlightedNow) {
+      return;
+    }
+
+    if (pendingNavRef.current) {
+      clearTimeout(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+
+    pendingNavRef.current = window.setTimeout(() => {
+      pendingNavRef.current = null;
+
+      if (ignoreNextClickRef.current) {
+        ignoreNextClickRef.current = false;
+        return;
+      }
+
+      const sel = window.getSelection();
+      const stillHighlighted =
+        adventuresHighlighted ||
+        (sel && sel.toString().trim().includes("adventures"));
+
+      if (stillHighlighted) {
+        window.location.href = "/adventures";
+      }
+    }, 250);
+  };
+
+  const handleAdventuresDoubleClick = (e) => {
+    if (pendingNavRef.current) {
+      clearTimeout(pendingNavRef.current);
+      pendingNavRef.current = null;
+    }
+    ignoreNextClickRef.current = true;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pendingNavRef.current) {
+        clearTimeout(pendingNavRef.current);
+        pendingNavRef.current = null;
       }
     };
-
-    if (selectedIndex !== null) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, flatImages.length]);
-
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchStartX === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchEndX - touchStartX;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0 && selectedIndex > 0) {
-        setSelectedIndex(selectedIndex - 1); // swipe right
-      } else if (diff < 0 && selectedIndex < flatImages.length - 1) {
-        setSelectedIndex(selectedIndex + 1); // swipe left
-      }
-    }
-    setTouchStartX(null);
-  };
+  }, []);
 
   return (
     <main className="Photography">
-      <div className="gallery-header">
-        <h1>Photography</h1>
-        <p>Captured moments from my adventures</p>
-      </div>
-
-      {flatImages.length > 0 ? (
-        <div className="gallery-container">
-          {isMobile ? (
-            // photos in chronological order (single column)
-            <div className="gallery-column">
-              {flatImages.map((image, index) => (
-                <div
-                  key={index}
-                  className="gallery-item"
-                  onClick={() => setSelectedIndex(index)}
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={image.width}
-                    height={image.height}
-                    style={{ width: "100%", height: "auto", display: "block" }}
-                    unoptimized={true}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            // photos balanced by height and chronological order (three columns)
-            <div className="gallery-columns">
-              {columns.map((column, colIndex) => (
-                <div key={colIndex} className="gallery-column">
-                  {column.map((image, index) => {
-                    const flatIndex = flatImages.findIndex(
-                      (img) => img.src === image.src
-                    );
-                    return (
-                      <div
-                        key={index}
-                        className="gallery-item"
-                        onClick={() => setSelectedIndex(flatIndex)}
-                      >
-                        <Image
-                          src={image.src}
-                          alt={image.alt}
-                          width={image.width}
-                          height={image.height}
-                          style={{
-                            width: "100%",
-                            height: "auto",
-                            display: "block",
-                          }}
-                          unoptimized={true}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="loading">Loading images...</div>
-      )}
-
-      {selectedIndex !== null && flatImages[selectedIndex] && (
-        <div
-          className="image-modal"
-          onClick={() => setSelectedIndex(null)}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="modal-content">
-            <img
-              src={flatImages[selectedIndex].src}
-              alt={flatImages[selectedIndex].alt}
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
+      <Gallery
+        images={galleryImages}
+        columns={isMobile ? 1 : 3}
+        isMobile={isMobile}
+        renderHeader={() => (
+          <div className="gallery-header">
+            <h1>Photography</h1>
+            <p
+              id="adventures-text"
+              style={{ display: "inline" }}
+            >
+              Captured moments from my{" "}
+              <span
+                style={{
+                  cursor: adventuresHighlighted ? "pointer" : "auto",
+                  textDecoration: adventuresHighlighted ? "underline" : "none",
+                  transition: "text-decoration 0.2s",
+                }}
+                onClick={handleAdventuresClick}
+                onDoubleClick={handleAdventuresDoubleClick}
+              >
+                adventures
+              </span>
+            </p>
           </div>
-        </div>
-      )}
+        )}
+        renderItemInfo={null}
+        customColumns={galleryColumns}
+      />
     </main>
   );
 }

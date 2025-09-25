@@ -1,0 +1,68 @@
+@use "../app/globals.scss" as *;
+@use "./gallery.scss" as *;
+    
+.Adventures {
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  background-color: var(--background-rgb);
+  color: var(--foreground-rgb);
+
+  .sticky-nav {
+    position: sticky;
+    top: 0;
+    background: var(--nav-background, #fff);
+    border-bottom: 1px solid var(--nav-border, #eee);
+    z-index: 100;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: inherit;
+
+    .nav-buttons {
+      display: flex;
+      gap: 0px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      flex-wrap: wrap; 
+
+      button {
+        background: none;
+        border: none;
+        font-size: 0.9em;
+        color: var(--nav-foreground, #{$sophie-black});
+        cursor: pointer;
+            padding: 6px 10px;
+        border-radius: 4px;
+        font-family: inherit;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: var(--nav-hover, #f2f2f2);
+      }
+    }
+  }
+}
+
+:root {
+  --nav-background: #fff;
+  --nav-border: #eee;
+  --nav-foreground: #333;
+  --nav-hover: #f2f2f2;
+}
+
+[data-theme="dark"] {
+  --nav-background: #181818;
+  --nav-border: #{$sophie-grey};
+  --nav-foreground: #f2f2f2;
+  --nav-hover: #{$sophie-grey};
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --nav-background: #181818;
+    --nav-border: #{$sophie-grey};
+    --nav-foreground: #f2f2f2;
+    --nav-hover: #{$sophie-grey};
+  }
+}
