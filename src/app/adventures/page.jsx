@@ -101,7 +101,7 @@ const adventures = [
 		date: "2025-06-18",
 	},
   {
-    src: "https://www.dropbox.com/scl/fi/v2lj848f7tup460mf80zf/20250801-new-york-summer.jpg?rlkey=azay64ij32a7hnl1u1u9ksdqa&st=aoah6r92&raw=1",
+    src: "https://www.dropbox.com/scl/fi/otpsa9gdg7aeiyhp3b6pk/20250801-new-york-summer.jpg?rlkey=ll9stqbvh4cravuq6qawqo6ps&st=8bauf9zt&raw=1",
     title: "New York Summer",
     date: "2025-08-01",
   },
