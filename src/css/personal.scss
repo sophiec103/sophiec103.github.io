@@ -1,0 +1,33 @@
+@use "../app/globals.scss" as *;
+@use "./gallery.scss" as *;
+
+.Personal {
+  padding: 2rem 1.5rem;
+
+  .Gallery {
+
+    .gallery-columns {
+      max-width: 80vw;
+      display: grid;
+      grid-template-columns: 1fr;
+      // gap: 16px;
+      margin: 0 auto !important;
+    }
+
+    .gallery-item {
+      margin-bottom: 16px !important;
+      
+      &:last-child {
+        margin-bottom: 0 !important;
+      }
+
+      img {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 600px !important;
+        object-fit: contain !important;
+        display: block !important;
+      }
+    }
+  }
+}

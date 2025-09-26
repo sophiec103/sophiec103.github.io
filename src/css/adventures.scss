@@ -32,7 +32,7 @@
         font-size: 0.9em;
         color: var(--nav-foreground, #{$sophie-black});
         cursor: pointer;
-            padding: 6px 10px;
+        padding: 6px 10px;
         border-radius: 4px;
         font-family: inherit;
         transition: background 0.2s;
@@ -41,6 +41,10 @@
         background: var(--nav-hover, #f2f2f2);
       }
     }
+  }
+  
+  .gallery-header {
+    margin-bottom: 1rem !important;
   }
 }
 

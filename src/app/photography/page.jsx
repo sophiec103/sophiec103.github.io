@@ -116,8 +116,8 @@ export default function Photography() {
     };
   }, [flatImages, columnGroups]);
 
-  const galleryImages = isMobile ? flatImages : columns.flat();
-  const galleryColumns = isMobile ? [galleryImages] : columns;
+  const modalOrder = flatImages;
+  const layoutColumns = isMobile ? [flatImages] : columns;
 
   // track text selection & update highlight state + timestamp for easter egg
   useEffect(() => {
@@ -245,7 +245,7 @@ export default function Photography() {
   return (
     <main className="Photography">
       <Gallery
-        images={galleryImages}
+        images={modalOrder}
         columns={isMobile ? 1 : 3}
         isMobile={isMobile}
         renderHeader={() => (
@@ -272,7 +272,7 @@ export default function Photography() {
           </div>
         )}
         renderItemInfo={null}
-        customColumns={galleryColumns}
+        customColumns={layoutColumns}
       />
     </main>
   );
