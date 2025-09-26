@@ -23,11 +23,11 @@
   max-width: 1200px;
   margin: 48px auto 0 auto;
   display: grid;
-  gap: 16px;
+  gap: 16px !important;
 }
 
 .gallery-item {
-  margin-bottom: 16px;
+  margin-bottom: 32px !important;
 
   .item-title {
     margin-left: 2px;

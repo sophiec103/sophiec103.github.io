@@ -42,7 +42,7 @@ export default function Personal() {
         renderHeader={() => (
 		  <div className="gallery-header">
 			<h1>Personal</h1>
-			<p id="personal-text">A few snapshots</p>
+			<p id="personal-text">Glimpses of hidden fragments</p>
 		  </div>
   		)}
         renderItemInfo={null}

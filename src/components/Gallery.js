@@ -8,9 +8,11 @@ export default function Gallery({
   columns = 3,
   renderHeader,
   renderItemInfo,
+  renderModalInfo,
   navButtons,
   isMobile = false,
   customColumns = null,
+  withItemIds = false,
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const touchStartXRef = useRef(null);
@@ -124,10 +126,11 @@ export default function Gallery({
                 <div
                   key={globalIndex}
                   className="gallery-item"
+                  id={withItemIds ? `adventure-${globalIndex}` : undefined}
                   style={{ marginBottom: "48px", cursor: "pointer" }}
                   onClick={() => setSelectedIndex(globalIndex)}
                 >
-                  {renderItemInfo && renderItemInfo(img)}
+                  {renderItemInfo && renderItemInfo(img, globalIndex)}
                   <Image
                     src={img.src}
                     alt={img.alt || img.title || ""}
@@ -168,7 +171,10 @@ export default function Gallery({
                 display: "block",
               }}
             />
-            {renderItemInfo && renderItemInfo(enrichedFlat[selectedIndex])}
+            {renderModalInfo
+              ? renderModalInfo(enrichedFlat[selectedIndex])
+              : renderItemInfo &&
+                renderItemInfo(enrichedFlat[selectedIndex], selectedIndex)}
           </div>
         </div>
       )}

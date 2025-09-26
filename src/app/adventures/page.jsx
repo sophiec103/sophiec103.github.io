@@ -2,7 +2,7 @@
 
 import "../../css/adventures.scss";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import Gallery from "../../components/Gallery";
 
 const adventures = [
 	{
@@ -118,130 +118,69 @@ const adventures = [
 ];
 
 export default function Adventures() {
-	const [isMobile, setIsMobile] = useState(false);
-	const [selectedIndex, setSelectedIndex] = useState(null);
-	const [touchStartX, setTouchStartX] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-	useEffect(() => {
-		const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-		checkMobile();
-		window.addEventListener("resize", checkMobile);
-		return () => window.removeEventListener("resize", checkMobile);
-	}, []);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (selectedIndex !== null) {
-				if (e.key === "Escape") {
-					setSelectedIndex(null);
-				} else if (e.key === "ArrowLeft") {
-					setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-				} else if (e.key === "ArrowRight") {
-					setSelectedIndex((prev) =>
-						prev < adventures.length - 1 ? prev + 1 : prev
-					);
-				}
-			}
-		};
-		if (selectedIndex !== null) {
-			window.addEventListener("keydown", handleKeyDown);
-		}
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [selectedIndex]);
+  const renderHeader = () => (
+    <div className="gallery-header">
+      <h1>Adventures</h1>
+      <p id="adventures-text">A collection of memories and stories</p>
+    </div>
+  );
 
-	const handleTouchStart = (e) => setTouchStartX(e.touches[0].clientX);
-	const handleTouchEnd = (e) => {
-		if (touchStartX === null) return;
-		const touchEndX = e.changedTouches[0].clientX;
-		const diff = touchEndX - touchStartX;
-		if (Math.abs(diff) > 50) {
-			if (diff > 0 && selectedIndex > 0) {
-				setSelectedIndex(selectedIndex - 1);
-			} else if (diff < 0 && selectedIndex < adventures.length - 1) {
-				setSelectedIndex(selectedIndex + 1);
-			}
-		}
-		setTouchStartX(null);
-	};
+  const navButtons = !isMobile ? (
+    <nav className="sticky-nav">
+      <div className="nav-buttons">
+        {adventures.map((adv, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              const el = document.getElementById(`adventure-${idx}`);
+              if (el) {
+                const yOffset = -20;
+                const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }
+            }}
+          >
+            {adv.title}
+          </button>
+        ))}
+      </div>
+    </nav>
+  ) : null;
 
-	const handleMenuClick = (idx) => {
-		const el = document.getElementById(`adventure-${idx}`);
-		if (el) {
-			const yOffset = -20;
-			const y = el.getBoundingClientRect().top + window.scrollY + yOffset;
-			window.scrollTo({ top: y, behavior: "smooth" });
-		}
-	};
+  const renderItemInfo = (item, idx) => (
+    <div className="item-title" id={`adventure-${idx}`}>
+      {item.date} - {item.title}
+    </div>
+  );
 
-	return (
-		<main className="Adventures">
-			<div className="gallery-header">
-				<h1>Adventures</h1>
-				<p id="adventures-text">A collection of memories and stories</p>
-			</div>
+  const renderModalInfo = (item) => (
+    <div>
+      <strong>{item.date}</strong> - {item.title}
+    </div>
+  );
 
-				{!isMobile && (
-          <nav className="sticky-nav">
-            <div className="nav-buttons">
-              {adventures.map((adv, idx) => (
-                <button key={idx} onClick={() => handleMenuClick(idx)}>
-                  {adv.title}
-                </button>
-              ))}
-            </div>
-          </nav>
-				)}
-
-			<div
-				className="gallery-columns"
-				style={{
-					gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
-				}}
-			>
-				{adventures.map((adventure, idx) => (
-					<div
-						key={idx}
-						id={`adventure-${idx}`}
-						className="gallery-item"
-					>
-						  <div className="item-title">
-                {adventure.date} - {adventure.title}
-              </div>
-						<Image
-							src={adventure.src}
-							alt={adventure.title}
-							width={800}
-							height={500}
-							unoptimized
-							onClick={() => setSelectedIndex(idx)}
-						/>
-					</div>
-				))}
-			</div>
-
-			{selectedIndex !== null && adventures[selectedIndex] && (
-				<div
-					className="image-modal"
-					onClick={(e) => {
-						if (e.target === e.currentTarget) {
-							setSelectedIndex(null);
-						}
-					}}
-					onTouchStart={handleTouchStart}
-					onTouchEnd={handleTouchEnd}
-				>
-					<div className="modal-content">
-						<img
-							src={adventures[selectedIndex].src}
-							alt={adventures[selectedIndex].title}
-						/>
-						<div>
-							<strong>{adventures[selectedIndex].date}</strong> —{" "}
-							{adventures[selectedIndex].title}
-						</div>
-					</div>
-				</div>
-			)}
-		</main>
-	);
+  return (
+    <main className="Adventures">
+      <Gallery
+        images={adventures}
+        columns={isMobile ? 1 : 3}
+        isMobile={isMobile}
+        renderHeader={renderHeader}
+        renderItemInfo={renderItemInfo}
+		renderModalInfo={renderModalInfo}
+        navButtons={navButtons}
+        customColumns={null}
+		withItemIds 
+      />
+    </main>
+  );
 }
