@@ -45,16 +45,16 @@
 }
 
 :root {
-  --nav-background: #fff;
+  --nav-background: white;
   --nav-border: #eee;
-  --nav-foreground: #333;
+  --nav-foreground: #{$sophie-black};;
   --nav-hover: #f2f2f2;
 }
 
 [data-theme="dark"] {
-  --nav-background: #181818;
+  --nav-background: #{$sophie-black};
   --nav-border: #{$sophie-grey};
-  --nav-foreground: #f2f2f2;
+  --nav-foreground: white;
   --nav-hover: #{$sophie-grey};
 }
 
