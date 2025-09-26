@@ -19,8 +19,11 @@ export default function Photography() {
   const [columns, setColumns] = useState([[], [], []]);
   const [isMobile, setIsMobile] = useState(false);
   const [adventuresHighlighted, setAdventuresHighlighted] = useState(false);
-  const ignoreNextClickRef = useRef(false);
   const pendingNavRef = useRef(null);
+  const lastClickTimeRef = useRef(0);
+  const clickCountRef = useRef(0);
+  const lastHighlightTimeRef = useRef(0);
+  const adventuresRef = useRef(null);
 
   const columnGroups = useMemo(() => [[41, 44]], []);
 
@@ -40,11 +43,11 @@ export default function Photography() {
       const batchPaths = imagePaths.slice(startIdx, endIdx);
 
       const loadedImages = await Promise.all(
-        batchPaths.map((src) => {
-          return new Promise((resolve) => {
+        batchPaths.map((src) =>
+          new Promise((resolve) => {
             const img = new window.Image();
             img.src = src;
-            img.onload = () => {
+            img.onload = () =>
               resolve({
                 src,
                 alt: `Photo ${src.split("/").pop().split(".")[0]}`,
@@ -52,9 +55,16 @@ export default function Photography() {
                 height: img.naturalHeight,
                 ratio: img.naturalHeight / img.naturalWidth,
               });
-            };
-          });
-        })
+            img.onerror = () =>
+              resolve({
+                src,
+                alt: `Photo ${src.split("/").pop().split(".")[0]}`,
+                width: 800,
+                height: 600,
+                ratio: 600 / 800,
+              });
+          })
+        )
       );
 
       if (!isMounted) return;
@@ -92,7 +102,6 @@ export default function Photography() {
       setFlatImages(newFlatImages);
       setColumns(colImages);
 
-      // batch loading
       if (endIdx < imagePaths.length) {
         setTimeout(loadBatch, 50);
       }
@@ -107,36 +116,92 @@ export default function Photography() {
     };
   }, [flatImages, columnGroups]);
 
-  const galleryImages = isMobile
-    ? flatImages
-    : columns.flat();
-
+  const galleryImages = isMobile ? flatImages : columns.flat();
   const galleryColumns = isMobile ? [galleryImages] : columns;
 
+  // track text selection & update highlight state + timestamp for easter egg
   useEffect(() => {
     const handleSelection = () => {
       const selection = window.getSelection();
-      setAdventuresHighlighted(
-        selection && selection.toString().trim().includes("adventures")
-      );
+      const text = selection ? selection.toString().trim().toLowerCase() : "";
+      const contains = text.includes("adventures");
+      setAdventuresHighlighted(contains);
+      if (contains) {
+        lastHighlightTimeRef.current = Date.now();
+      }
     };
+
     document.addEventListener("mouseup", handleSelection);
     document.addEventListener("selectionchange", handleSelection);
+    document.addEventListener("touchend", handleSelection);
+
     return () => {
       document.removeEventListener("mouseup", handleSelection);
       document.removeEventListener("selectionchange", handleSelection);
+      document.removeEventListener("touchend", handleSelection);
     };
   }, []);
 
+  // mobile tap detection for easter egg
+  useEffect(() => {
+    const onTouchStart = (e) => {
+      if (!isMobile) return;
+      const touch = e.touches && e.touches[0];
+      if (!touch) return;
+      const rect = adventuresRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = touch.clientX;
+      const y = touch.clientY;
+      const inside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      if (!inside) return;
+
+      const selectionNow = window.getSelection();
+      const selTextNow = selectionNow ? selectionNow.toString().trim().toLowerCase() : "";
+      const isHighlightedNow = selTextNow.includes("adventures");
+
+      if (!isHighlightedNow) {
+        return;
+      }
+
+      const now = Date.now();
+      const lastHighlightAt = lastHighlightTimeRef.current || 0;
+      const timeSinceHighlight = now - lastHighlightAt;
+
+      if (timeSinceHighlight < 300) { // touch from long press highlight
+        return;
+      }
+
+      setTimeout(() => {
+        window.location.href = "/adventures";
+      }, 0);
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart, { passive: true });
+    };
+  }, [isMobile]);
+
   const handleAdventuresClick = (e) => {
+    if (isMobile) return;
+
+    const now = Date.now();
+    const timeSinceLast = now - lastClickTimeRef.current;
+
+    if (timeSinceLast < 400) {
+      clickCountRef.current += 1;
+    } else {
+      clickCountRef.current = 1; // reset after time gap
+    }
+    lastClickTimeRef.current = now;
+
     const selection = window.getSelection();
     const isHighlightedNow =
       adventuresHighlighted ||
       (selection && selection.toString().trim().includes("adventures"));
 
-    if (!isHighlightedNow) {
-      return;
-    }
+    if (!isHighlightedNow) return;
 
     if (pendingNavRef.current) {
       clearTimeout(pendingNavRef.current);
@@ -146,8 +211,7 @@ export default function Photography() {
     pendingNavRef.current = window.setTimeout(() => {
       pendingNavRef.current = null;
 
-      if (ignoreNextClickRef.current) {
-        ignoreNextClickRef.current = false;
+      if (clickCountRef.current === 2 || clickCountRef.current === 3) {
         return;
       }
 
@@ -162,12 +226,11 @@ export default function Photography() {
     }, 250);
   };
 
-  const handleAdventuresDoubleClick = (e) => {
+  const handleAdventuresDoubleClick = () => {
     if (pendingNavRef.current) {
       clearTimeout(pendingNavRef.current);
       pendingNavRef.current = null;
     }
-    ignoreNextClickRef.current = true;
   };
 
   useEffect(() => {
@@ -188,12 +251,13 @@ export default function Photography() {
         renderHeader={() => (
           <div className="gallery-header">
             <h1>Photography</h1>
-            <p
-              id="adventures-text"
-              style={{ display: "inline" }}
-            >
+            <p id="adventures-text" style={{ display: "inline" }}>
               Captured moments from my{" "}
               <span
+                ref={adventuresRef}
+                role="link"
+                tabIndex={0}
+                aria-pressed={adventuresHighlighted}
                 style={{
                   cursor: adventuresHighlighted ? "pointer" : "auto",
                   textDecoration: adventuresHighlighted ? "underline" : "none",
