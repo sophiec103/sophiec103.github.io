@@ -92,7 +92,7 @@ const adventures = [
 	},
   {
 		src: "https://www.dropbox.com/scl/fi/ydcyntumduumywiv7qi0c/20250505-mtv-cali-exploration.jpg?rlkey=ur319ctosyn738p4xjzszye21&st=0w9hmdzf&raw=1",
-		title: "California Exploration",
+		title: "California Summer",
 		date: "2025-05-05",
 	},
   {

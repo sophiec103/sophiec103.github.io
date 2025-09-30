@@ -102,7 +102,6 @@ export default function Gallery({
     }
   };
 
-  // Render
   return (
     <main className="Gallery">
       {renderHeader && renderHeader()}
@@ -127,8 +126,7 @@ export default function Gallery({
                   key={globalIndex}
                   className="gallery-item"
                   id={withItemIds ? `adventure-${globalIndex}` : undefined}
-                  style={{ marginBottom: "48px", cursor: "pointer" }}
-                  onClick={() => setSelectedIndex(globalIndex)}
+                  style={{ marginBottom: "48px" }}
                 >
                   {renderItemInfo && renderItemInfo(img, globalIndex)}
                   <Image
@@ -140,7 +138,9 @@ export default function Gallery({
                       width: "100%",
                       height: "auto",
                       display: "block",
+                      cursor: "pointer" 
                     }}
+                    onClick={() => setSelectedIndex(globalIndex)}
                     unoptimized
                   />
                 </div>
