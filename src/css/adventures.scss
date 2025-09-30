@@ -46,12 +46,28 @@
   .gallery-header {
     margin-bottom: 1rem !important;
   }
+
+  .memories-text {
+    #me {
+      text-decoration: none;
+    }
+
+    #i {
+      cursor: default;
+      transition: color 0.2s ease;
+    }
+
+    #i.active {
+      cursor: pointer;
+      color: $sophie-pink;
+    }
+  }
 }
 
 :root {
   --nav-background: white;
   --nav-border: #eee;
-  --nav-foreground: #{$sophie-black};;
+  --nav-foreground: #{$sophie-black};
   --nav-hover: #f2f2f2;
 }
 
