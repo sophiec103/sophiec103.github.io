@@ -10,8 +10,8 @@
   .sticky-nav {
     position: sticky;
     top: 0;
-    background: var(--nav-background, #fff);
-    border-bottom: 1px solid var(--nav-border, #eee);
+    background: var(--nav-background);
+    border-bottom: 1px solid var(--nav-border);
     z-index: 100;
     padding: 8px 16px;
     display: flex;
@@ -30,7 +30,7 @@
         background: none;
         border: none;
         font-size: 0.9em;
-        color: var(--nav-foreground, #{$sophie-black});
+        color: var(--nav-foreground);
         cursor: pointer;
         padding: 6px 10px;
         border-radius: 4px;
@@ -38,7 +38,7 @@
         transition: background 0.2s;
       }
       button:hover {
-        background: var(--nav-hover, #f2f2f2);
+        background: var(--nav-hover);
       }
     }
   }
@@ -76,13 +76,4 @@
   --nav-border: #{$sophie-grey};
   --nav-foreground: white;
   --nav-hover: #{$sophie-grey};
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --nav-background: #{$sophie-black};
-    --nav-border: #{$sophie-grey};
-    --nav-foreground: #f2f2f2;
-    --nav-hover: #{$sophie-grey};
-  }
 }
