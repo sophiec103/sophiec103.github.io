@@ -41,8 +41,8 @@ export default function Personal() {
         isMobile={isMobile}
         renderHeader={() => (
 		  <div className="gallery-header">
-			<h1>Personal</h1>
-			<p id="personal-text">♡</p>
+        <h1>Personal</h1>
+        <p id="personal-text">♡</p>
 		  </div>
   		)}
         renderItemInfo={null}

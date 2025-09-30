@@ -6,28 +6,35 @@
 
   .Gallery {
     .gallery-columns {
-      max-width: 80vw;
+      max-width: 90vw;
+      margin: 0 auto !important;
       display: grid;
       grid-template-columns: 1fr;
-      margin: 0 auto !important;
+      justify-items: center;
+    }
+
+    .gallery-header {
+      margin-bottom: 24px !important;
     }
 
     .gallery-item {
       margin-bottom: 16px !important;
+      display: flex;
+      justify-content: center;
 
       &:last-child {
         margin-bottom: 0 !important;
       }
 
-  img {
-    display: block !important;
-    max-height: 95vh !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain !important;
-    margin: 0 auto;
-    cursor: pointer !important;
-  }
+      img {
+        max-height: 95vh !important;
+        max-width: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto;
+      }
     }
   }
 }
