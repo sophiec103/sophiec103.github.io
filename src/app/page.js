@@ -81,6 +81,7 @@ export default function Home() {
           <p className="description">
             I&apos;m currently studying Computer Science at the University of
             Waterloo. I&apos;ve had some really great experiences working at
+            <a href="https://www.uber.com/"> Uber</a>,
             <a href="https://www.databricks.com/"> Databricks</a>,
             <a href="https://www.spscommerce.com/"> SPS Commerce</a>,
             <a href="https://www.faire.com/"> Faire</a>,
