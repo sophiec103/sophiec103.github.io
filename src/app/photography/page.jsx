@@ -38,6 +38,8 @@ export default function Photography() {
     let isMounted = true;
 
     const loadBatch = async () => {
+      if (flatImages.length >= imagePaths.length) return;
+
       const startIdx = flatImages.length;
       const endIdx = Math.min(startIdx + BATCH_SIZE, imagePaths.length);
       const batchPaths = imagePaths.slice(startIdx, endIdx);
@@ -101,19 +103,30 @@ export default function Photography() {
 
       setFlatImages(newFlatImages);
       setColumns(colImages);
-
-      if (endIdx < imagePaths.length) {
-        setTimeout(loadBatch, 50);
-      }
     };
 
-    if (flatImages.length < imagePaths.length) {
+    // initial load
+    if (flatImages.length === 0) {
       loadBatch();
     }
 
-    return () => {
-      isMounted = false;
-    };
+    // setup intersection observer
+    const sentinel = document.getElementById("load-more-sentinel");
+    if (sentinel) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            loadBatch();
+          }
+        },
+        { rootMargin: "200px" } // load earlier before user hits bottom
+      );
+      observer.observe(sentinel);
+      return () => {
+        observer.disconnect();
+        isMounted = false;
+      };
+    }
   }, [flatImages, columnGroups]);
 
   const modalOrder = flatImages;
@@ -274,6 +287,7 @@ export default function Photography() {
         renderItemInfo={null}
         customColumns={layoutColumns}
       />
+      <div id="load-more-sentinel" style={{ height: "40px" }}></div>
     </main>
   );
 }
