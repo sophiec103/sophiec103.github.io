@@ -91,6 +91,16 @@ const adventures = [
 	date: "2025-01-06",
   },
   {
+	src: "https://www.dropbox.com/scl/fi/nhf0hz5u1fc5pj5jvbtxr/20250429-las-vegas.jpg?rlkey=waqapwznq1ij3zs5u8jfynhdp&st=0rd3o855&raw=1",
+	title: "Las Vegas",
+	date: "2025-05-05",
+  },
+  {
+	src: "https://www.dropbox.com/scl/fi/x617wg0ctygookg0ahwsk/20250430-zion-grand-canyon.jpg?rlkey=q0h2j0vuwkkyy7dm28fle1gq4&st=93en2ym7&raw=1",
+	title: "Zion + Grand Canyon",
+	date: "2025-05-05",
+  },
+  {
 	src: "https://www.dropbox.com/scl/fi/ydcyntumduumywiv7qi0c/20250505-mtv-cali-exploration.jpg?rlkey=ur319ctosyn738p4xjzszye21&st=0w9hmdzf&raw=1",
 	title: "California Summer",
 	date: "2025-05-05",
