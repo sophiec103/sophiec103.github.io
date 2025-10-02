@@ -44,6 +44,10 @@
     height: auto;
     display: block;
     cursor: pointer;
+
+    &:hover {
+      filter: opacity(0.9);
+    }
   }
 }
 

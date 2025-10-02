@@ -29,7 +29,6 @@ export default function Gallery({
     [sourceFlat]
   );
 
-  // quick lookup map keyed by `src||alt` to the enriched item
   const enrichedByKey = useMemo(() => {
     const map = new Map();
     for (const e of enrichedFlat) {
@@ -134,12 +133,6 @@ export default function Gallery({
                     alt={img.alt || img.title || ""}
                     width={img.width || 800}
                     height={img.height || 500}
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      display: "block",
-                      cursor: "pointer" 
-                    }}
                     onClick={() => setSelectedIndex(globalIndex)}
                     unoptimized
                   />
@@ -163,13 +156,6 @@ export default function Gallery({
             <img
               src={enrichedFlat[selectedIndex].src}
               alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "80vh",
-                objectFit: "contain",
-                marginBottom: "16px",
-                display: "block",
-              }}
             />
             {renderModalInfo
               ? renderModalInfo(enrichedFlat[selectedIndex])
