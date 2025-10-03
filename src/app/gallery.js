@@ -16,6 +16,7 @@ export default function Gallery({
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const touchStartXRef = useRef(null);
+  const touchCountRef = useRef(0);
 
   const sourceFlat = useMemo(() => {
     if (images && images.length) return images;
@@ -81,14 +82,28 @@ export default function Gallery({
   }, [selectedIndex, enrichedFlat.length]);
 
   const handleTouchStart = (e) => {
-    touchStartXRef.current = e.touches && e.touches[0] && e.touches[0].clientX;
+    touchCountRef.current = e.touches.length;
+    if (touchCountRef.current === 1) {
+      touchStartXRef.current = e.touches[0].clientX;
+    } else {
+      touchStartXRef.current = null;
+    }
   };
+
   const handleTouchEnd = (e) => {
+    if (touchCountRef.current > 1) {
+      touchCountRef.current = 0;
+      return;
+    }
+
     const start = touchStartXRef.current;
     touchStartXRef.current = null;
+    touchCountRef.current = 0;
+
     if (start == null) return;
-    const end = e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientX;
+    const end = e.changedTouches?.[0]?.clientX;
     if (end == null) return;
+
     const diff = end - start;
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
@@ -100,6 +115,7 @@ export default function Gallery({
       }
     }
   };
+
 
   return (
     <main className="Gallery">
