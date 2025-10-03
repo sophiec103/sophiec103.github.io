@@ -2,7 +2,7 @@
 
 import "../../css/adventures.scss";
 import { useState, useEffect, useRef } from "react";
-import Gallery from "../../components/Gallery";
+import Gallery from "../gallery";
 
 const adventures = [
   {

@@ -1,9 +1,9 @@
 "use client";
 
 import "../../css/photography.scss";
-import Gallery from "../../components/Gallery";
+import Gallery from "../gallery";
 import { useDarkMode } from "../useDarkMode";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 
 const numImages = 50;
 const imagePaths = [];
@@ -15,17 +15,35 @@ const BATCH_SIZE = 10;
 
 export default function Photography() {
   const [_isLightMode] = useDarkMode();
-  const [flatImages, setFlatImages] = useState([]);
-  const [columns, setColumns] = useState([[], [], []]);
+  const [flatImages, setFlatImages] = useState([]); // canonical flat list (modal navigation)
+  const [columns, setColumns] = useState([[], [], []]); // balanced masonry columns
   const [isMobile, setIsMobile] = useState(false);
   const [adventuresHighlighted, setAdventuresHighlighted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const pendingNavRef = useRef(null);
   const lastClickTimeRef = useRef(0);
   const clickCountRef = useRef(0);
   const lastHighlightTimeRef = useRef(0);
   const adventuresRef = useRef(null);
 
+  const sentinelRef = useRef(null);
+  const flatImagesRef = useRef([]);
+  const isLoadingRef = useRef(false);
+  const mountedRef = useRef(true);
+
   const columnGroups = useMemo(() => [[41, 44]], []);
+
+  useEffect(() => {
+    flatImagesRef.current = flatImages;
+  }, [flatImages]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -34,51 +52,14 @@ export default function Photography() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadBatch = async () => {
-      if (flatImages.length >= imagePaths.length) return;
-
-      const startIdx = flatImages.length;
-      const endIdx = Math.min(startIdx + BATCH_SIZE, imagePaths.length);
-      const batchPaths = imagePaths.slice(startIdx, endIdx);
-
-      const loadedImages = await Promise.all(
-        batchPaths.map((src) =>
-          new Promise((resolve) => {
-            const img = new window.Image();
-            img.src = src;
-            img.onload = () =>
-              resolve({
-                src,
-                alt: `Photo ${src.split("/").pop().split(".")[0]}`,
-                width: img.naturalWidth,
-                height: img.naturalHeight,
-                ratio: img.naturalHeight / img.naturalWidth,
-              });
-            img.onerror = () =>
-              resolve({
-                src,
-                alt: `Photo ${src.split("/").pop().split(".")[0]}`,
-                width: 800,
-                height: 600,
-                ratio: 600 / 800,
-              });
-          })
-        )
-      );
-
-      if (!isMounted) return;
-
-      const newFlatImages = [...flatImages, ...loadedImages];
-
-      // column balancing logic
+  // column balancing logic
+  const computeColumnsFromFlat = useCallback(
+    (flatArr) => {
       const colHeights = [0, 0, 0];
       const colImages = [[], [], []];
       const placed = new Set();
 
-      for (let i = 0; i < newFlatImages.length; i++) {
+      for (let i = 0; i < flatArr.length; i++) {
         const imgNum = i + 1;
         if (placed.has(imgNum)) continue;
 
@@ -87,50 +68,132 @@ export default function Photography() {
           const minIndex = colHeights.indexOf(Math.min(...colHeights));
           for (const groupImgNum of group) {
             const imgIdx = groupImgNum - 1;
-            if (newFlatImages[imgIdx]) {
-              colImages[minIndex].push(newFlatImages[imgIdx]);
-              colHeights[minIndex] += newFlatImages[imgIdx].ratio;
+            if (flatArr[imgIdx]) {
+              colImages[minIndex].push(flatArr[imgIdx]);
+              colHeights[minIndex] += flatArr[imgIdx].ratio ?? (flatArr[imgIdx].height / (flatArr[imgIdx].width || 800));
               placed.add(groupImgNum);
             }
           }
         } else {
           const minIndex = colHeights.indexOf(Math.min(...colHeights));
-          colImages[minIndex].push(newFlatImages[i]);
-          colHeights[minIndex] += newFlatImages[i].ratio;
+          colImages[minIndex].push(flatArr[i]);
+          colHeights[minIndex] += flatArr[i].ratio ?? (flatArr[i].height / (flatArr[i].width || 800));
           placed.add(imgNum);
         }
       }
 
-      setFlatImages(newFlatImages);
-      setColumns(colImages);
+      return colImages;
+    },
+    [columnGroups]
+  );
+
+  const loadBatch = useCallback(async () => {
+    if (isLoadingRef.current) return;
+    const currentLen = flatImagesRef.current.length;
+    if (currentLen >= imagePaths.length) return;
+
+    isLoadingRef.current = true;
+    if (mountedRef.current) setIsLoading(true);
+
+    try {
+      const startIdx = currentLen;
+      const endIdx = Math.min(startIdx + BATCH_SIZE, imagePaths.length);
+      const batchPaths = imagePaths.slice(startIdx, endIdx);
+
+      const loadedImages = await Promise.all(
+        batchPaths.map(
+          (src) =>
+            new Promise((resolve) => {
+              const img = new window.Image();
+              img.src = src;
+              img.onload = () =>
+                resolve({
+                  src,
+                  alt: `Photo ${src.split("/").pop().split(".")[0]}`,
+                  width: img.naturalWidth || 800,
+                  height: img.naturalHeight || 600,
+                  ratio: img.naturalWidth ? img.naturalHeight / img.naturalWidth : 600 / 800,
+                });
+              img.onerror = () =>
+                resolve({
+                  src,
+                  alt: `Photo ${src.split("/").pop().split(".")[0]}`,
+                  width: 800,
+                  height: 600,
+                  ratio: 600 / 800,
+                });
+            })
+        )
+      );
+
+      if (!mountedRef.current) return;
+
+      const newFlatImages = [...flatImagesRef.current, ...loadedImages];
+      flatImagesRef.current = newFlatImages;
+      if (mountedRef.current) setFlatImages(newFlatImages);
+
+      const colImages = computeColumnsFromFlat(newFlatImages);
+      if (mountedRef.current) setColumns(colImages);
+    } finally {
+      isLoadingRef.current = false;
+      if (mountedRef.current) setIsLoading(false);
+    }
+  }, [computeColumnsFromFlat]);
+
+  useEffect(() => {
+    let observer = null;
+    let retryInterval = null;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        await loadBatch();
+
+        const MAX_EXTRA_BATCHES = 3;
+        for (let i = 0; i < MAX_EXTRA_BATCHES && !cancelled; i++) {
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+
+          const bodyHeight = document.body.scrollHeight || 0;
+          if (bodyHeight > window.innerHeight + 200) break;
+          if (flatImagesRef.current.length >= imagePaths.length) break;
+          await loadBatch();
+        }
+      } catch (e) {
+      }
+    })();
+
+    const onIntersect = (entries) => {
+      if (entries && entries[0] && entries[0].isIntersecting) {
+        loadBatch().catch(() => {});
+      }
     };
 
-    // initial load
-    if (flatImages.length === 0) {
-      loadBatch();
+    observer = new IntersectionObserver(onIntersect, { rootMargin: "200px" });
+
+    if (sentinelRef.current) {
+      observer.observe(sentinelRef.current);
+    } else {
+      // retry sentinel mount check
+      let tries = 0;
+      retryInterval = setInterval(() => {
+        tries += 1;
+        if (sentinelRef.current) {
+          observer.observe(sentinelRef.current);
+          clearInterval(retryInterval);
+          retryInterval = null;
+        } else if (tries > 10) {
+          clearInterval(retryInterval);
+          retryInterval = null;
+        }
+      }, 200);
     }
 
-    // setup intersection observer
-    const sentinel = document.getElementById("load-more-sentinel");
-    if (sentinel) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            loadBatch();
-          }
-        },
-        { rootMargin: "200px" } // load earlier before user hits bottom
-      );
-      observer.observe(sentinel);
-      return () => {
-        observer.disconnect();
-        isMounted = false;
-      };
-    }
-  }, [flatImages, columnGroups]);
-
-  const modalOrder = flatImages;
-  const layoutColumns = isMobile ? [flatImages] : columns;
+    return () => {
+      cancelled = true;
+      if (observer) observer.disconnect();
+      if (retryInterval) clearInterval(retryInterval);
+    };
+  }, [loadBatch]);
 
   // track text selection & update highlight state + timestamp for easter egg
   useEffect(() => {
@@ -172,10 +235,7 @@ export default function Photography() {
       const selectionNow = window.getSelection();
       const selTextNow = selectionNow ? selectionNow.toString().trim().toLowerCase() : "";
       const isHighlightedNow = selTextNow.includes("adventures");
-
-      if (!isHighlightedNow) {
-        return;
-      }
+      if (!isHighlightedNow) return;
 
       const now = Date.now();
       const lastHighlightAt = lastHighlightTimeRef.current || 0;
@@ -255,6 +315,11 @@ export default function Photography() {
     };
   }, []);
 
+  const modalOrder = flatImages;
+  const layoutColumns = isMobile ? [flatImages] : columns;
+
+  const showLoading = isLoading && flatImages.length < imagePaths.length;
+
   return (
     <main className="Photography">
       <Gallery
@@ -287,7 +352,8 @@ export default function Photography() {
         renderItemInfo={null}
         customColumns={layoutColumns}
       />
-      <div id="load-more-sentinel" style={{ height: "40px" }}></div>
+      {showLoading && <div className="loading">Loading images...</div>}
+      <div id="load-more-sentinel" ref={sentinelRef} style={{ height: "40px" }} />
     </main>
   );
 }

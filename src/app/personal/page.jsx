@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import "../../css/personal.scss";
-import Gallery from "../../components/Gallery";
+import Gallery from "../gallery";
 
 const images = [
   {
