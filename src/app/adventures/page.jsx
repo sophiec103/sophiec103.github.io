@@ -47,7 +47,7 @@ const adventures = [
   },
   {
 	src: "https://www.dropbox.com/scl/fi/elp6moegn0sx8ehdf3cbe/20240427-hong-kong.jpg?rlkey=lb1hx02klwce3edfwb16wjtey&st=si2q2iyv&raw=1",
-	title: "Hong Kong",
+	title: "Hong Kong + Taiwan",
 	date: "2024-04-27",
   },
   {
