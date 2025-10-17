@@ -24,6 +24,7 @@ export default function Gallery({
   const latestSelectedRef = useRef(null);
   const clickedIndexRef = useRef(null);
   const currentOnScreenIndexRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
 
   const sourceFlat = useMemo(() => {
     if (images.length) return images;
@@ -67,35 +68,68 @@ export default function Gallery({
 
   latestSelectedRef.current = selectedIndex;
 
-  const goToIndex = (newIndex, viaArrow = false) => {
+  const findGridImgElement = (index) => {
+    if (index == null) return null;
+    const selectors = [
+      `img[data-globalindex="${index}"]`,
+      `.gallery-item[data-globalindex="${index}"] img`,
+      `.gallery-item[data-globalindex="${index}"] picture img`,
+    ];
+    for (const sel of selectors) {
+      const img = document.querySelector(sel);
+      if (img) return img;
+    }
+    return null;
+  };
+
+  const waitForGridImg = (index, { needCurrentSrc = false, timeoutMs = 4000, intervalMs = 100 } = {}) =>
+    new Promise((resolve) => {
+      const start = Date.now();
+      const tryNow = () => {
+        const img = findGridImgElement(index);
+        if (!img) return false;
+        const curr = img.currentSrc || img.src;
+        if (!needCurrentSrc || (curr && curr.length > 0)) {
+          resolve(img);
+          return true;
+        }
+        return false;
+      };
+      if (tryNow()) return;
+      const t = setInterval(() => {
+        if (Date.now() - start > timeoutMs) {
+          clearInterval(t);
+          resolve(findGridImgElement(index));
+          return;
+        }
+        if (tryNow()) clearInterval(t);
+      }, intervalMs);
+    });
+
+  const goToIndex = async (newIndex, viaArrow = false) => {
     if (newIndex < 0 || newIndex >= enrichedFlat.length) return;
 
-    const imgInGrid = document.querySelector(
-      `img[data-globalindex="${newIndex}"]`
-    );
-    const srcToUse = imgInGrid
-      ? imgInGrid.currentSrc || imgInGrid.src
-      : enrichedFlat[newIndex].src;
-    const isComplete = imgInGrid?.complete ?? false;
-    const isOnScreen = currentOnScreenIndexRef.current === newIndex;
+    if (viaArrow) clickedIndexRef.current = null;
+
+    const gridImg = findGridImgElement(newIndex);
+    const isComplete = gridImg?.complete ?? false;
+    const srcToUse = gridImg?.currentSrc || gridImg?.src || enrichedFlat[newIndex].src;
 
     setModalSrc(srcToUse);
     setSelectedIndex(newIndex);
     setArrowNavigation(viaArrow && !isComplete);
-    setLoadingModal(viaArrow && !isComplete && !isOnScreen);
+    setLoadingModal(viaArrow && !isComplete);
+    latestSelectedRef.current = newIndex;
 
-    if (!isComplete) {
-      imgInGrid?.addEventListener(
-        "load",
-        () => {
-          if (latestSelectedRef.current === newIndex) {
-            currentOnScreenIndexRef.current = newIndex;
-            setLoadingModal(false);
-            setArrowNavigation(false);
-          }
-        },
-        { once: true }
-      );
+    if (!isComplete && gridImg) {
+      const onLoad = () => {
+        if (latestSelectedRef.current === newIndex) {
+          currentOnScreenIndexRef.current = newIndex;
+          setLoadingModal(false);
+          setArrowNavigation(false);
+        }
+      };
+      gridImg.addEventListener("load", onLoad, { once: true });
     } else {
       currentOnScreenIndexRef.current = newIndex;
     }
@@ -116,29 +150,19 @@ export default function Gallery({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex]);
+  }, [selectedIndex, enrichedFlat.length]);
 
   const handleTouchStart = (e) => {
     touchCountRef.current = e.touches.length;
-    if (touchCountRef.current === 1)
-      touchStartXRef.current = e.touches[0].clientX;
-    else touchStartXRef.current = null;
+    if (touchCountRef.current === 1) touchStartXRef.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = (e) => {
-    if (touchCountRef.current > 1) {
-      touchCountRef.current = 0;
-      return;
-    }
-
+    if (touchCountRef.current > 1) return;
     const start = touchStartXRef.current;
-    touchStartXRef.current = null;
-    touchCountRef.current = 0;
     if (start == null) return;
-
     const end = e.changedTouches?.[0]?.clientX;
     if (end == null) return;
-
     const diff = end - start;
     if (Math.abs(diff) > 50) {
       if (diff > 0) goToIndex(selectedIndex - 1, true);
@@ -147,53 +171,126 @@ export default function Gallery({
   };
 
   useEffect(() => {
-    if (selectedIndex === null) {
-      setModalSrc(null);
-      setLoadingModal(false);
-      setArrowNavigation(false);
-      clickedIndexRef.current = null;
-      currentOnScreenIndexRef.current = null;
-      return;
-    }
+    if (selectedIndex === null) return;
 
-    const item = enrichedFlat[selectedIndex];
-    const imgInGrid = document.querySelector(
-      `img[data-globalindex="${selectedIndex}"]`
-    );
+    latestSelectedRef.current = selectedIndex;
+    const clickedIndex = clickedIndexRef.current === selectedIndex;
 
-    const imgNode =
-      imgInGrid ||
-      (isMobile
-        ? document.querySelector(
-            `.gallery-item img[data-globalindex="${selectedIndex}"]`
-          )
-        : null);
+    let cancelled = false;
 
-    const srcToUse = imgNode
-      ? imgNode.currentSrc || imgNode.src
-      : item.src;
-    const isComplete = imgNode?.complete ?? false;
-    const isOnScreen = currentOnScreenIndexRef.current === selectedIndex;
+    (async () => {
+      const gridImg = await waitForGridImg(selectedIndex, { needCurrentSrc: false, timeoutMs: 3000, intervalMs: 120 });
+      if (cancelled) return;
 
-    setModalSrc(srcToUse);
-    setLoadingModal(!isOnScreen && !isComplete);
+      const srcToUse = gridImg ? (gridImg.currentSrc || gridImg.src) : enrichedFlat[selectedIndex].src;
+      const isComplete = gridImg?.complete ?? false;
+      const isOnScreen = currentOnScreenIndexRef.current === selectedIndex;
 
-    if (!isComplete) {
-      imgNode?.addEventListener(
-        "load",
-        () => {
+      if (clickedIndex) {
+        setModalSrc(srcToUse);
+        setLoadingModal(false);
+        setArrowNavigation(false);
+        currentOnScreenIndexRef.current = selectedIndex;
+        if (!gridImg) {
+          let attempts = 0;
+          const bg = setInterval(() => {
+            attempts++;
+            const g = findGridImgElement(selectedIndex);
+            if (g) {
+              setModalSrc(g.currentSrc || g.src);
+              clearInterval(bg);
+            } else if (attempts > 20) {
+              clearInterval(bg);
+            }
+          }, 150);
+        }
+        return;
+      }
+
+      setModalSrc(srcToUse);
+      setLoadingModal(!isOnScreen && !isComplete);
+      setArrowNavigation(!isComplete);
+
+      if (!isComplete && gridImg) {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+        let attempts = 0;
+        pollingIntervalRef.current = setInterval(() => {
+          attempts++;
+          if (gridImg.complete) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+            if (latestSelectedRef.current === selectedIndex) {
+              currentOnScreenIndexRef.current = selectedIndex;
+              setLoadingModal(false);
+              setArrowNavigation(false);
+            }
+          } else if (attempts > 30) {
+            clearInterval(pollingIntervalRef.current);
+            pollingIntervalRef.current = null;
+          }
+        }, 150);
+
+        const onLoad = () => {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
           if (latestSelectedRef.current === selectedIndex) {
             currentOnScreenIndexRef.current = selectedIndex;
             setLoadingModal(false);
             setArrowNavigation(false);
           }
-        },
-        { once: true }
-      );
-    } else {
-      currentOnScreenIndexRef.current = selectedIndex;
-    }
+        };
+        gridImg.addEventListener("load", onLoad, { once: true });
+      } else {
+        currentOnScreenIndexRef.current = selectedIndex;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
   }, [selectedIndex, enrichedFlat, isMobile]);
+
+  const handleGridClick = async (globalIndex) => {
+    clickedIndexRef.current = globalIndex;
+    latestSelectedRef.current = globalIndex;
+    const gridImg = findGridImgElement(globalIndex);
+    const srcToUse = gridImg?.currentSrc || gridImg?.src || enrichedFlat[globalIndex].src;
+
+    setModalSrc(srcToUse);
+    setSelectedIndex(globalIndex);
+    setArrowNavigation(false);
+    setLoadingModal(false);
+
+    if (!gridImg || !gridImg.complete) {
+      const onLoad = () => {
+        if (latestSelectedRef.current === globalIndex) {
+          currentOnScreenIndexRef.current = globalIndex;
+          setLoadingModal(false);
+        }
+      };
+      gridImg?.addEventListener("load", onLoad, { once: true });
+    }
+  };
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const modal = document.querySelector(".image-modal");
+    if (!modal) return;
+    const updateHeight = () => {
+      const vv = window.visualViewport;
+      modal.style.height = vv ? vv.height + "px" : "100dvh";
+    };
+    updateHeight();
+    window.visualViewport?.addEventListener("resize", updateHeight);
+    return () => window.visualViewport?.removeEventListener("resize", updateHeight);
+  }, [selectedIndex]);
 
   return (
     <main className="Gallery">
@@ -204,9 +301,7 @@ export default function Gallery({
         className="gallery-columns"
         style={{
           display: "grid",
-          gridTemplateColumns: isMobile
-            ? "1fr"
-            : `repeat(${Math.max(1, columns)}, 1fr)`,
+          gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.max(1, columns)}, 1fr)`,
           gap: "32px",
         }}
       >
@@ -219,6 +314,7 @@ export default function Gallery({
                   key={globalIndex}
                   className="gallery-item"
                   id={withItemIds ? `adventure-${globalIndex}` : undefined}
+                  data-globalindex={globalIndex}
                 >
                   {renderItemInfo && renderItemInfo(img, globalIndex)}
                   <Image
@@ -226,21 +322,7 @@ export default function Gallery({
                     alt={img.alt || img.title || ""}
                     width={img.width || 800}
                     height={img.height || 500}
-                    onClick={() => {
-                      clickedIndexRef.current = globalIndex;
-                      currentOnScreenIndexRef.current = globalIndex;
-                      const imgInGrid = document.querySelector(
-                        `img[data-globalindex="${globalIndex}"]`
-                      );
-                      const srcToUse = imgInGrid
-                        ? imgInGrid.currentSrc || imgInGrid.src
-                        : img.src;
-                      setModalSrc(srcToUse);
-                      setLoadingModal(false);
-                      setArrowNavigation(false);
-                      setSelectedIndex(globalIndex);
-                      latestSelectedRef.current = globalIndex;
-                    }}
+                    onClick={() => handleGridClick(globalIndex)}
                     unoptimized
                     data-globalindex={globalIndex}
                   />
@@ -259,6 +341,10 @@ export default function Gallery({
               setSelectedIndex(null);
               clickedIndexRef.current = null;
               currentOnScreenIndexRef.current = null;
+              if (pollingIntervalRef.current) {
+                clearInterval(pollingIntervalRef.current);
+                pollingIntervalRef.current = null;
+              }
             }
           }}
           onTouchStart={handleTouchStart}
@@ -268,11 +354,7 @@ export default function Gallery({
             {modalSrc && (
               <img
                 src={modalSrc}
-                alt={
-                  enrichedFlat[selectedIndex].alt ||
-                  enrichedFlat[selectedIndex].title ||
-                  ""
-                }
+                alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
                 onLoad={() => {
                   if (latestSelectedRef.current === selectedIndex) {
                     currentOnScreenIndexRef.current = selectedIndex;
@@ -280,6 +362,7 @@ export default function Gallery({
                     setArrowNavigation(false);
                   }
                 }}
+                style={{ maxWidth: "100%", maxHeight: "80vh", objectFit: "contain" }}
               />
             )}
 
@@ -289,8 +372,7 @@ export default function Gallery({
 
             {renderModalInfo
               ? renderModalInfo(enrichedFlat[selectedIndex])
-              : renderItemInfo &&
-                renderItemInfo(enrichedFlat[selectedIndex], selectedIndex)}
+              : renderItemInfo?.(enrichedFlat[selectedIndex], selectedIndex)}
           </div>
         </div>
       )}
