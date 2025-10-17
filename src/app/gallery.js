@@ -160,17 +160,26 @@ export default function Gallery({
     const imgInGrid = document.querySelector(
       `img[data-globalindex="${selectedIndex}"]`
     );
-    const srcToUse = imgInGrid
-      ? imgInGrid.currentSrc || imgInGrid.src
+
+    const imgNode =
+      imgInGrid ||
+      (isMobile
+        ? document.querySelector(
+            `.gallery-item img[data-globalindex="${selectedIndex}"]`
+          )
+        : null);
+
+    const srcToUse = imgNode
+      ? imgNode.currentSrc || imgNode.src
       : item.src;
-    const isComplete = imgInGrid?.complete ?? false;
+    const isComplete = imgNode?.complete ?? false;
     const isOnScreen = currentOnScreenIndexRef.current === selectedIndex;
 
     setModalSrc(srcToUse);
     setLoadingModal(!isOnScreen && !isComplete);
 
     if (!isComplete) {
-      imgInGrid?.addEventListener(
+      imgNode?.addEventListener(
         "load",
         () => {
           if (latestSelectedRef.current === selectedIndex) {
@@ -184,7 +193,7 @@ export default function Gallery({
     } else {
       currentOnScreenIndexRef.current = selectedIndex;
     }
-  }, [selectedIndex, enrichedFlat]);
+  }, [selectedIndex, enrichedFlat, isMobile]);
 
   return (
     <main className="Gallery">
