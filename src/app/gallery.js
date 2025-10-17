@@ -15,8 +15,13 @@ export default function Gallery({
   withItemIds = false,
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const [modalSrc, setModalSrc] = useState(null);
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [arrowNavigation, setArrowNavigation] = useState(false);
+
   const touchStartXRef = useRef(null);
   const touchCountRef = useRef(0);
+  const latestSelectedRef = useRef(null);
 
   const sourceFlat = useMemo(() => {
     if (images && images.length) return images;
@@ -24,7 +29,6 @@ export default function Gallery({
     return [];
   }, [images, customColumns]);
 
-  // attach stable globalIndex for modal ordering
   const enrichedFlat = useMemo(
     () => sourceFlat.map((it, idx) => ({ ...it, globalIndex: idx })),
     [sourceFlat]
@@ -43,10 +47,8 @@ export default function Gallery({
     if (!item) return null;
     const key = `${item.src}||${item.alt || ""}`;
     if (enrichedByKey.has(key)) return enrichedByKey.get(key);
-
     const found = enrichedFlat.find((f) => f.src === item.src || (item.alt && f.alt === item.alt));
     if (found) return found;
-
     return { ...item, globalIndex: enrichedFlat.length };
   };
 
@@ -63,23 +65,35 @@ export default function Gallery({
   }, [customColumns, enrichedFlat, columns]);
 
   useEffect(() => {
+    latestSelectedRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  const goToIndex = (newIndex, viaArrow = false) => {
+    if (newIndex < 0 || newIndex >= enrichedFlat.length) return;
+    const imgInGrid = document.querySelector(
+      `img[data-globalindex="${newIndex}"]`
+    );
+    if (imgInGrid) {
+      setLoadingModal(!imgInGrid.complete);
+      setSelectedIndex(newIndex);
+      setArrowNavigation(viaArrow && !imgInGrid.complete);
+    } else {
+      setLoadingModal(true);
+      setSelectedIndex(newIndex);
+      setArrowNavigation(viaArrow);
+    }
+  };
+
+  useEffect(() => {
     if (selectedIndex === null) return;
-
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setSelectedIndex(null);
-      } else if (e.key === "ArrowLeft") {
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-      } else if (e.key === "ArrowRight") {
-        setSelectedIndex((prev) =>
-          prev < enrichedFlat.length - 1 ? prev + 1 : prev
-        );
-      }
+      if (e.key === "Escape") setSelectedIndex(null);
+      if (e.key === "ArrowLeft") goToIndex(selectedIndex - 1, true);
+      if (e.key === "ArrowRight") goToIndex(selectedIndex + 1, true);
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, enrichedFlat.length]);
+  }, [selectedIndex]);
 
   const handleTouchStart = (e) => {
     touchCountRef.current = e.touches.length;
@@ -106,51 +120,78 @@ export default function Gallery({
 
     const diff = end - start;
     if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-      } else {
-        setSelectedIndex((prev) =>
-          prev < enrichedFlat.length - 1 ? prev + 1 : prev
-        );
-      }
+      if (diff > 0) goToIndex(selectedIndex - 1, true);
+      else goToIndex(selectedIndex + 1, true);
     }
   };
 
+  useEffect(() => {
+    if (selectedIndex === null) {
+      setModalSrc(null);
+      setLoadingModal(false);
+      setArrowNavigation(false);
+      return;
+    }
+
+    const item = enrichedFlat[selectedIndex];
+    if (!item) {
+      setModalSrc(null);
+      setLoadingModal(false);
+      setArrowNavigation(false);
+      return;
+    }
+
+    const imgInGrid = document.querySelector(
+      `img[data-globalindex="${selectedIndex}"]`
+    );
+    if (imgInGrid) {
+      const srcToUse = imgInGrid.currentSrc || imgInGrid.src || item.src;
+      setModalSrc(srcToUse);
+      if (imgInGrid.complete) setLoadingModal(false);
+      else {
+        setLoadingModal(true);
+        const onLoad = () => {
+          if (latestSelectedRef.current === selectedIndex) setLoadingModal(false);
+          imgInGrid.removeEventListener("load", onLoad);
+        };
+        imgInGrid.addEventListener("load", onLoad);
+      }
+    } else {
+      setModalSrc(item.src);
+      setLoadingModal(true);
+    }
+  }, [selectedIndex, enrichedFlat]);
 
   return (
     <main className="Gallery">
       {renderHeader && renderHeader()}
       {navButtons}
 
-      <div
-        className="gallery-columns"
-        style={{
-          maxWidth: "1200px",
-          margin: "48px auto 0 auto",
-          display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.max(1, columns)}, 1fr)`,
-          gap: "32px",
-        }}
-      >
+      <div className="gallery-columns" style={{
+        display: "grid",
+        gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.max(1, columns)}, 1fr)`,
+        gap: "32px"
+      }}>
         {colArr.map((column, colIdx) => (
           <div key={colIdx} className="gallery-column">
             {column.map((img) => {
               const globalIndex = img?.globalIndex ?? 0;
               return (
-                <div
-                  key={globalIndex}
-                  className="gallery-item"
-                  id={withItemIds ? `adventure-${globalIndex}` : undefined}
-                  style={{ marginBottom: "48px" }}
-                >
+                <div key={globalIndex} className="gallery-item"
+                     id={withItemIds ? `adventure-${globalIndex}` : undefined}>
                   {renderItemInfo && renderItemInfo(img, globalIndex)}
                   <Image
                     src={img.src}
                     alt={img.alt || img.title || ""}
                     width={img.width || 800}
                     height={img.height || 500}
-                    onClick={() => setSelectedIndex(globalIndex)}
+                    onClick={() => {
+                      setLoadingModal(false);
+                      setArrowNavigation(false);
+                      setSelectedIndex(globalIndex);
+                    }}
                     unoptimized
+                    data-globalindex={globalIndex}
                   />
                 </div>
               );
@@ -169,10 +210,19 @@ export default function Gallery({
           onTouchEnd={handleTouchEnd}
         >
           <div className="modal-content">
-            <img
-              src={enrichedFlat[selectedIndex].src}
-              alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
-            />
+            {arrowNavigation && loadingModal && (
+              <div className="arrow-loading">Loading...</div>
+            )}
+            {modalSrc && (
+              <img
+                src={modalSrc}
+                alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
+                onLoad={() => {
+                  if (latestSelectedRef.current === selectedIndex) setLoadingModal(false);
+                  setArrowNavigation(false);
+                }}
+              />
+            )}
             {renderModalInfo
               ? renderModalInfo(enrichedFlat[selectedIndex])
               : renderItemInfo &&

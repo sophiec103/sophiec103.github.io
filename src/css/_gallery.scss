@@ -94,6 +94,21 @@
       max-width: 90%;
     }
   }
+
+  .arrow-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 1.2rem;
+    z-index: 2;
+    pointer-events: none;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
 }
 
 @media (max-width: 768px) {

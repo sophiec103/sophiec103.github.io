@@ -149,7 +149,7 @@ export default function Photography() {
       try {
         await loadBatch();
 
-        const MAX_EXTRA_BATCHES = 3;
+        const MAX_EXTRA_BATCHES = 10;
         for (let i = 0; i < MAX_EXTRA_BATCHES && !cancelled; i++) {
           await new Promise((resolve) => requestAnimationFrame(resolve));
 
