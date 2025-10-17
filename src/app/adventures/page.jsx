@@ -87,7 +87,7 @@ const adventures = [
   },
   {
 	src: "https://www.dropbox.com/scl/fi/s465ggtpfbs7dhrs4v7f3/20250106-disney-cruise.jpg?rlkey=964w0gpdu8i0puiopnbxnqtlh&st=oz4fm34a&raw=1",
-	title: "Disney Cruise",
+	title: "Disney Wish Cruise",
 	date: "2025-01-06",
   },
   {
