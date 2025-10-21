@@ -25,6 +25,10 @@ const images = [
 	  src: "https://www.dropbox.com/scl/fi/xifdktqk9ixj1erzzgduc/partner.jpg?rlkey=2xt3k2tjbio1v03zsszwqthk5&st=m7vav1ix&raw=1",
 	  description: "SO",
   },
+  {
+    src: "https://www.dropbox.com/scl/fi/9806s9umcoja4o0coqajp/han-fu.jpg?rlkey=4yl5vc12drrq1z9f3jep5uy88&st=8dcw8t5v&raw=1",
+    description: "Han Fu"
+  }
 ];
 
 export default function Personal() {
