@@ -124,7 +124,12 @@ const adventures = [
 	src: "https://www.dropbox.com/scl/fi/ac8eki3q1gq7fcvnvk2yb/20250826-iceland.jpg?rlkey=lrj5yxx6f0xk8m2qcmujtzkxq&st=w2y49gyd&raw=1",
 	title: "Iceland",
 	date: "2025-08-26",
-  }
+  },
+  {
+	src: "https://www.dropbox.com/scl/fi/igtf4b5b78gwxogp4z9wh/20250906-cali-autumn.jpg?rlkey=g4bqun80lvku4vzkmgws38tnc&st=g2o83w3g&raw=1",
+	title: "California Autumn",
+	date: "2025-09-06",
+  },
 ];
 
 export default function Adventures() {
