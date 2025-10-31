@@ -37,7 +37,7 @@ export default function Home() {
   const [imgIndex, setImgIndex] = useState(0);
   const armTimeout = useRef(null);
 
-  const imageCount = 14;
+  const imageCount = 15;
   const images = Array.from({ length: imageCount }, (_, i) =>
     i === 0 ? "/sophie.jpg" : `/sophie${i}.jpg`
   );
