@@ -152,9 +152,6 @@ export default function Photography() {
         const MAX_EXTRA_BATCHES = 10;
         for (let i = 0; i < MAX_EXTRA_BATCHES && !cancelled; i++) {
           await new Promise((resolve) => requestAnimationFrame(resolve));
-
-          const bodyHeight = document.body.scrollHeight || 0;
-          if (bodyHeight > window.innerHeight + 200) break;
           if (flatImagesRef.current.length >= imagePaths.length) break;
           await loadBatch();
         }
