@@ -26,12 +26,12 @@ const images = [
 	  description: "SO",
   },
   {
-    src: "https://www.dropbox.com/scl/fi/9806s9umcoja4o0coqajp/han-fu.jpg?rlkey=4yl5vc12drrq1z9f3jep5uy88&st=8dcw8t5v&raw=1",
-    description: "Han Fu",
-  },
-  {
     src: "https://www.dropbox.com/scl/fi/0kv43ijsl4i62yj7rd1ow/han-fu-pt2.jpg?rlkey=qgn6ryhuv41erbwgsqaugjuwo&st=j9di0hem&raw=1",
     description: "Han Fu Pt. 2",
+  },
+  {
+    src: "https://www.dropbox.com/scl/fi/9806s9umcoja4o0coqajp/han-fu.jpg?rlkey=4yl5vc12drrq1z9f3jep5uy88&st=8dcw8t5v&raw=1",
+    description: "Han Fu",
   }
 ];
 
