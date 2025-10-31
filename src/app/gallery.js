@@ -19,12 +19,24 @@ export default function Gallery({
   const [loadingModal, setLoadingModal] = useState(false);
   const [arrowNavigation, setArrowNavigation] = useState(false);
 
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
   const touchStartXRef = useRef(null);
   const touchCountRef = useRef(0);
   const latestSelectedRef = useRef(null);
   const clickedIndexRef = useRef(null);
   const currentOnScreenIndexRef = useRef(null);
   const pollingIntervalRef = useRef(null);
+  const modalImageRef = useRef(null);
+  const lastTouchDistanceRef = useRef(null);
+  const initialPinchCenterRef = useRef(null);
+  const hasDraggedRef = useRef(false);
+  const modalContentRef = useRef(null);
+  const modalOverlayRef = useRef(null);
 
   const sourceFlat = useMemo(() => {
     if (images.length) return images;
@@ -106,10 +118,19 @@ export default function Gallery({
       }, intervalMs);
     });
 
+  const resetZoom = () => {
+    setIsZoomed(false);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+    setIsDragging(false);
+    hasDraggedRef.current = false;
+  };
+
   const goToIndex = async (newIndex, viaArrow = false) => {
     if (newIndex < 0 || newIndex >= enrichedFlat.length) return;
 
     if (viaArrow) clickedIndexRef.current = null;
+    resetZoom();
 
     const gridImg = findGridImgElement(newIndex);
     const isComplete = gridImg?.complete ?? false;
@@ -135,6 +156,214 @@ export default function Gallery({
     }
   };
 
+  const constrainPan = (x, y, currentZoom) => {
+    const img = modalImageRef.current;
+    if (!img || currentZoom <= 1) return { x: 0, y: 0 };
+
+    const rect = img.getBoundingClientRect();
+    const modal = modalOverlayRef.current;
+    const viewportWidth = modal ? modal.clientWidth : window.innerWidth;
+    const viewportHeight = modal ? modal.clientHeight : window.innerHeight;
+    
+    const zoomedWidth = rect.width * currentZoom;
+    const zoomedHeight = rect.height * currentZoom;
+    
+    let maxX = 0;
+    let maxY = 0;
+    
+    if (zoomedWidth > viewportWidth) {
+      maxX = ((zoomedWidth - viewportWidth) / 2) / currentZoom;
+    }
+    
+    if (zoomedHeight > viewportHeight) {
+      maxY = ((zoomedHeight - viewportHeight) / 2) / currentZoom;
+    }
+
+    return {
+      x: Math.max(-maxX, Math.min(maxX, x)),
+      y: Math.max(-maxY, Math.min(maxY, y))
+    };
+  };
+
+  const handleImageClick = (e) => {
+    if (hasDraggedRef.current) {
+      hasDraggedRef.current = false;
+      return;
+    }
+    
+    const img = modalImageRef.current;
+    if (!img) return;
+
+    if (!isZoomed) {
+      const rect = img.getBoundingClientRect();
+      
+      const clickX = e.clientX - (rect.left + rect.width / 2);
+      const clickY = e.clientY - (rect.top + rect.height / 2);
+      
+      const newZoom = 4;
+      setIsZoomed(true);
+      setZoomLevel(newZoom);
+      
+      const desiredPanX = -clickX*newZoom;
+      const desiredPanY = -clickY*newZoom;
+      
+      const constrained = constrainPan(desiredPanX, desiredPanY, newZoom);
+      setPanPosition(constrained);
+    } else {
+      resetZoom();
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    if (!isZoomed) return;
+    e.preventDefault();
+    setIsDragging(true);
+    hasDraggedRef.current = false;
+    setDragStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !isZoomed) return;
+    hasDraggedRef.current = true;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    const constrained = constrainPan(newX, newY, zoomLevel);
+    setPanPosition(constrained);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const deltaX = e.deltaX;
+    const deltaY = e.deltaY;
+    
+    const newX = panPosition.x - deltaX;
+    const newY = panPosition.y - deltaY;
+    const constrained = constrainPan(newX, newY, zoomLevel);
+    setPanPosition(constrained);
+  };
+
+  const getTouchCenter = (touch1, touch2) => {
+    return {
+      x: (touch1.clientX + touch2.clientX) / 2,
+      y: (touch1.clientY + touch2.clientY) / 2
+    };
+  };
+
+  const handleTouchStart = (e) => {
+    touchCountRef.current = e.touches.length;
+    
+    if (touchCountRef.current === 2) {
+      e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      lastTouchDistanceRef.current = distance;
+      initialPinchCenterRef.current = getTouchCenter(touch1, touch2);
+    } else if (touchCountRef.current === 1) {
+      if (isZoomed) {
+        setIsDragging(true);
+        hasDraggedRef.current = false;
+        setDragStart({ 
+          x: e.touches[0].clientX - panPosition.x, 
+          y: e.touches[0].clientY - panPosition.y 
+        });
+      } else {
+        touchStartXRef.current = e.touches[0].clientX;
+      }
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (!lastTouchDistanceRef.current || !initialPinchCenterRef.current) return;
+      
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      
+      const scale = distance / lastTouchDistanceRef.current;
+      const newZoom = Math.max(1, Math.min(5, zoomLevel * scale));
+      
+      if (newZoom > 1) {
+        setIsZoomed(true);
+        setZoomLevel(newZoom);
+        
+        const currentCenter = getTouchCenter(touch1, touch2);
+        const deltaX = currentCenter.x - initialPinchCenterRef.current.x;
+        const deltaY = currentCenter.y - initialPinchCenterRef.current.y;
+        
+        const newPanX = panPosition.x + deltaX;
+        const newPanY = panPosition.y + deltaY;
+        const constrained = constrainPan(newPanX, newPanY, newZoom);
+        setPanPosition(constrained);
+        
+        initialPinchCenterRef.current = currentCenter;
+      } else {
+        resetZoom();
+      }
+      
+      lastTouchDistanceRef.current = distance;
+    } else if (e.touches.length === 1 && isZoomed && isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+      hasDraggedRef.current = true;
+      const newX = e.touches[0].clientX - dragStart.x;
+      const newY = e.touches[0].clientY - dragStart.y;
+      const constrained = constrainPan(newX, newY, zoomLevel);
+      setPanPosition(constrained);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchCountRef.current === 2) {
+      lastTouchDistanceRef.current = null;
+      initialPinchCenterRef.current = null;
+    } else if (touchCountRef.current === 1 && !isZoomed) {
+      const start = touchStartXRef.current;
+      if (start == null) return;
+      const end = e.changedTouches?.[0]?.clientX;
+      if (end == null) return;
+      const diff = end - start;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goToIndex(selectedIndex - 1, true);
+        else goToIndex(selectedIndex + 1, true);
+      }
+    }
+    setIsDragging(false);
+    touchCountRef.current = 0;
+  };
+
+  // prevent background scrolling when modal is open
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      const scrollY = Math.abs(parseInt(document.body.style.top || '0', 10));
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
+    }
+  }, [selectedIndex]);
+
   useEffect(() => {
     if (selectedIndex === null) return;
     const handleKeyDown = (e) => {
@@ -142,33 +371,16 @@ export default function Gallery({
         setSelectedIndex(null);
         clickedIndexRef.current = null;
         currentOnScreenIndexRef.current = null;
-      } else if (e.key === "ArrowLeft") {
+        resetZoom();
+      } else if (e.key === "ArrowLeft" && !isZoomed) {
         goToIndex(selectedIndex - 1, true);
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === "ArrowRight" && !isZoomed) {
         goToIndex(selectedIndex + 1, true);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, enrichedFlat.length]);
-
-  const handleTouchStart = (e) => {
-    touchCountRef.current = e.touches.length;
-    if (touchCountRef.current === 1) touchStartXRef.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchCountRef.current > 1) return;
-    const start = touchStartXRef.current;
-    if (start == null) return;
-    const end = e.changedTouches?.[0]?.clientX;
-    if (end == null) return;
-    const diff = end - start;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) goToIndex(selectedIndex - 1, true);
-      else goToIndex(selectedIndex + 1, true);
-    }
-  };
+  }, [selectedIndex, enrichedFlat.length, isZoomed]);
 
   useEffect(() => {
     if (selectedIndex === null) return;
@@ -260,6 +472,7 @@ export default function Gallery({
   const handleGridClick = async (globalIndex) => {
     clickedIndexRef.current = globalIndex;
     latestSelectedRef.current = globalIndex;
+    resetZoom();
     const gridImg = findGridImgElement(globalIndex);
     const srcToUse = gridImg?.currentSrc || gridImg?.src || enrichedFlat[globalIndex].src;
 
@@ -278,19 +491,6 @@ export default function Gallery({
       gridImg?.addEventListener("load", onLoad, { once: true });
     }
   };
-
-  useEffect(() => {
-    if (selectedIndex === null) return;
-    const modal = document.querySelector(".image-modal");
-    if (!modal) return;
-    const updateHeight = () => {
-      const vv = window.visualViewport;
-      modal.style.height = vv ? vv.height + "px" : "100dvh";
-    };
-    updateHeight();
-    window.visualViewport?.addEventListener("resize", updateHeight);
-    return () => window.visualViewport?.removeEventListener("resize", updateHeight);
-  }, [selectedIndex]);
 
   return (
     <main className="Gallery">
@@ -335,12 +535,14 @@ export default function Gallery({
 
       {selectedIndex !== null && enrichedFlat[selectedIndex] && (
         <div
+          ref={modalOverlayRef}
           className="image-modal"
           onClick={(e) => {
-            if (e.target === e.currentTarget) {
+            if (e.target === e.currentTarget && !isZoomed) {
               setSelectedIndex(null);
               clickedIndexRef.current = null;
               currentOnScreenIndexRef.current = null;
+              resetZoom();
               if (pollingIntervalRef.current) {
                 clearInterval(pollingIntervalRef.current);
                 pollingIntervalRef.current = null;
@@ -348,13 +550,25 @@ export default function Gallery({
             }
           }}
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
         >
-          <div className="modal-content" style={{ position: "relative" }}>
+          <div 
+            ref={modalContentRef}
+            className="modal-content" 
+            style={{ position: "relative" }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
             {modalSrc && (
               <img
+                ref={modalImageRef}
                 src={modalSrc}
                 alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
+                onClick={handleImageClick}
                 onLoad={() => {
                   if (latestSelectedRef.current === selectedIndex) {
                     currentOnScreenIndexRef.current = selectedIndex;
@@ -362,7 +576,17 @@ export default function Gallery({
                     setArrowNavigation(false);
                   }
                 }}
-                style={{ maxWidth: "100%", maxHeight: "80vh", objectFit: "contain" }}
+                style={{ 
+                  maxWidth: "100%", 
+                  maxHeight: "80vh", 
+                  objectFit: "contain",
+                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                  transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+                  cursor: isZoomed ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in',
+                  touchAction: 'none',
+                  pointerEvents: 'auto'
+                }}
+                draggable={false}
               />
             )}
 
@@ -370,9 +594,9 @@ export default function Gallery({
               <div className="arrow-loading">Loading...</div>
             )}
 
-            {renderModalInfo
+            {!isZoomed && (renderModalInfo
               ? renderModalInfo(enrichedFlat[selectedIndex])
-              : renderItemInfo?.(enrichedFlat[selectedIndex], selectedIndex)}
+              : renderItemInfo?.(enrichedFlat[selectedIndex], selectedIndex))}
           </div>
         </div>
       )}
