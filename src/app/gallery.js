@@ -37,6 +37,7 @@ export default function Gallery({
   const hasDraggedRef = useRef(false);
   const modalContentRef = useRef(null);
   const modalOverlayRef = useRef(null);
+  const savedScrollYRef = useRef(0);
 
   const sourceFlat = useMemo(() => {
     if (images.length) return images;
@@ -351,16 +352,21 @@ export default function Gallery({
   // prevent background scrolling when modal is open
   useEffect(() => {
     if (selectedIndex !== null) {
-      const scrollY = window.scrollY;
+      if (savedScrollYRef.current === 0) {
+        savedScrollYRef.current = window.scrollY;
+      }
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
+      document.body.style.top = `-${savedScrollYRef.current}px`;
       document.body.style.width = '100%';
     } else {
-      const scrollY = Math.abs(parseInt(document.body.style.top || '0', 10));
+      const scrollY = savedScrollYRef.current;
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      window.scrollTo(0, scrollY);
+      if (scrollY > 0) {
+        window.scrollTo(0, scrollY);
+      }
+      savedScrollYRef.current = 0;
     }
   }, [selectedIndex]);
 
