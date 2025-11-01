@@ -241,6 +241,7 @@ export default function Adventures() {
         renderModalInfo={renderModalInfo}
         navButtons={navButtons}
         customColumns={null}
+        zoomLevel={4}
 		withItemIds
       />
     </main>

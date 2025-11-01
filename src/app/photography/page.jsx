@@ -348,6 +348,7 @@ export default function Photography() {
         )}
         renderItemInfo={null}
         customColumns={layoutColumns}
+        zoomLevel={2.5}
       />
       {showLoading && <div className="loading">Loading images...</div>}
       <div id="load-more-sentinel" ref={sentinelRef} style={{ height: "40px" }} />

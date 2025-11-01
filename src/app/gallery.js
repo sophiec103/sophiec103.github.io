@@ -13,6 +13,7 @@ export default function Gallery({
   isMobile = false,
   customColumns = null,
   withItemIds = false,
+  zoomLevel: zoomLevelProp = 4,
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [modalSrc, setModalSrc] = useState(null);
@@ -201,14 +202,13 @@ export default function Gallery({
       const clickX = e.clientX - (rect.left + rect.width / 2);
       const clickY = e.clientY - (rect.top + rect.height / 2);
       
-      const newZoom = 4;
       setIsZoomed(true);
-      setZoomLevel(newZoom);
+      setZoomLevel(zoomLevelProp);
       
-      const desiredPanX = -clickX*newZoom;
-      const desiredPanY = -clickY*newZoom;
+      const desiredPanX = -clickX * zoomLevelProp;
+      const desiredPanY = -clickY * zoomLevelProp;
       
-      const constrained = constrainPan(desiredPanX, desiredPanY, newZoom);
+      const constrained = constrainPan(desiredPanX, desiredPanY, zoomLevelProp);
       setPanPosition(constrained);
     } else {
       resetZoom();

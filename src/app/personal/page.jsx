@@ -59,6 +59,7 @@ export default function Personal() {
   		)}
         renderItemInfo={null}
         navButtons={null}
+        zoomLevel={4}
       />
     </main>
   );
