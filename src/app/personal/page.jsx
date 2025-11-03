@@ -10,6 +10,10 @@ const images = [
 	  description: "Family",
   },
   {
+	  src: "https://www.dropbox.com/scl/fi/265jabkhnro12sq7g113s/baby.jpg?rlkey=b3dxsw34w50i12p1xp2e1e7q2&st=596k6nr7&raw=1",
+	  description: "Baby",
+  },
+  {
 	  src: "https://www.dropbox.com/scl/fi/wm0dtkjtgcxzoxgv4ic4n/life-is-tough-but-you-are-tougher.jpg?rlkey=xpnbc0qfvy7eps5rx659bw72k&st=5zre5231&raw=1",
 	  description: "Life is tough but you are tougher",
   },
