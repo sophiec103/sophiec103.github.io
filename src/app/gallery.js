@@ -31,12 +31,14 @@ export default function Gallery({
   const clickedIndexRef = useRef(null);
   const currentOnScreenIndexRef = useRef(null);
   const modalImageRef = useRef(null);
+  const modalInfoRef = useRef(null);
   const lastTouchDistanceRef = useRef(null);
   const initialPinchCenterRef = useRef(null);
   const hasDraggedRef = useRef(false);
   const modalContentRef = useRef(null);
   const modalOverlayRef = useRef(null);
   const savedScrollYRef = useRef(0);
+  const imagePreloadCacheRef = useRef({});
 
   const sourceFlat = useMemo(() => {
     if (images.length) return images;
@@ -369,7 +371,6 @@ export default function Gallery({
     resetZoom();
     
     const gridImg = findGridImgElement(globalIndex);
-    
     let srcToUse = enrichedFlat[globalIndex].src;
     
     if (gridImg) {
@@ -377,6 +378,12 @@ export default function Gallery({
         srcToUse = gridImg.currentSrc;
       } else if (gridImg.src && gridImg.src.length > 0) {
         srcToUse = gridImg.src;
+      }
+      
+      if (gridImg.complete && !imagePreloadCacheRef.current[globalIndex]) {
+        const preload = new Image();
+        preload.src = srcToUse;
+        imagePreloadCacheRef.current[globalIndex] = preload;
       }
     }
 
@@ -392,6 +399,29 @@ export default function Gallery({
       currentOnScreenIndexRef.current = selectedIndex;
       setLoadingModal(false);
       setArrowNavigation(false);
+      
+      if (!imagePreloadCacheRef.current[selectedIndex]) {
+        const preload = new Image();
+        preload.src = modalSrc;
+        imagePreloadCacheRef.current[selectedIndex] = preload;
+      }
+    }
+  };
+
+  const handleOverlayClick = (e) => {
+    if (isZoomed) return;
+    
+    const img = modalImageRef.current;
+    const info = modalInfoRef.current;
+    
+    const isClickOnImage = img && img.contains(e.target);
+    const isClickOnInfo = info && info.contains(e.target);
+    
+    if (!isClickOnImage && !isClickOnInfo) {
+      setSelectedIndex(null);
+      clickedIndexRef.current = null;
+      currentOnScreenIndexRef.current = null;
+      resetZoom();
     }
   };
 
@@ -442,14 +472,7 @@ export default function Gallery({
         <div
           ref={modalOverlayRef}
           className="image-modal"
-          onClick={(e) => {
-            if (e.target === e.currentTarget && !isZoomed) {
-              setSelectedIndex(null);
-              clickedIndexRef.current = null;
-              currentOnScreenIndexRef.current = null;
-              resetZoom();
-            }
-          }}
+          onClick={handleOverlayClick}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
