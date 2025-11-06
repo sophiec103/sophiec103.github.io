@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 
 export default function Gallery({
   images = [],
@@ -95,30 +94,6 @@ export default function Gallery({
     return null;
   };
 
-  const waitForGridImg = (index, { needCurrentSrc = false, timeoutMs = 4000, intervalMs = 100 } = {}) =>
-    new Promise((resolve) => {
-      const start = Date.now();
-      const tryNow = () => {
-        const img = findGridImgElement(index);
-        if (!img) return false;
-        const curr = img.currentSrc || img.src;
-        if (!needCurrentSrc || (curr && curr.length > 0)) {
-          resolve(img);
-          return true;
-        }
-        return false;
-      };
-      if (tryNow()) return;
-      const t = setInterval(() => {
-        if (Date.now() - start > timeoutMs) {
-          clearInterval(t);
-          resolve(findGridImgElement(index));
-          return;
-        }
-        if (tryNow()) clearInterval(t);
-      }, intervalMs);
-    });
-
   const resetZoom = () => {
     setIsZoomed(false);
     setZoomLevel(1);
@@ -134,7 +109,16 @@ export default function Gallery({
     resetZoom();
 
     const gridImg = findGridImgElement(newIndex);
-    const srcToUse = gridImg?.currentSrc || gridImg?.src || enrichedFlat[newIndex].src;
+    
+    let srcToUse = enrichedFlat[newIndex].src;
+    
+    if (gridImg) {
+      if (gridImg.currentSrc && gridImg.currentSrc.length > 0) {
+        srcToUse = gridImg.currentSrc;
+      } else if (gridImg.src && gridImg.src.length > 0) {
+        srcToUse = gridImg.src;
+      }
+    }
 
     setSelectedIndex(newIndex);
     setModalSrc(srcToUse);
@@ -385,7 +369,16 @@ export default function Gallery({
     resetZoom();
     
     const gridImg = findGridImgElement(globalIndex);
-    const srcToUse = gridImg?.currentSrc || gridImg?.src || enrichedFlat[globalIndex].src;
+    
+    let srcToUse = enrichedFlat[globalIndex].src;
+    
+    if (gridImg) {
+      if (gridImg.currentSrc && gridImg.currentSrc.length > 0) {
+        srcToUse = gridImg.currentSrc;
+      } else if (gridImg.src && gridImg.src.length > 0) {
+        srcToUse = gridImg.src;
+      }
+    }
 
     setModalSrc(srcToUse);
     setSelectedIndex(globalIndex);
@@ -429,13 +422,13 @@ export default function Gallery({
                   data-globalindex={globalIndex}
                 >
                   {renderItemInfo && renderItemInfo(img, globalIndex)}
-                  <Image
+                  <img
                     src={img.src}
                     alt={img.alt || img.title || ""}
                     width={img.width || 800}
                     height={img.height || 500}
                     onClick={() => handleGridClick(globalIndex)}
-                    unoptimized
+                    loading="lazy"
                     data-globalindex={globalIndex}
                   />
                 </div>
