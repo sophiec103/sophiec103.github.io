@@ -32,7 +32,7 @@ export default function Photography() {
   const isLoadingRef = useRef(false);
   const mountedRef = useRef(true);
 
-  const columnGroups = useMemo(() => [[41, 44]], []);
+  const columnGroups = useMemo(() => [[42, 43]], []);
 
   useEffect(() => {
     flatImagesRef.current = flatImages;
