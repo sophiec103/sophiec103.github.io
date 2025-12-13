@@ -130,6 +130,11 @@ const adventures = [
 	title: "California Autumn",
 	date: "2025-09-06",
   },
+  {
+	src: "https://www.dropbox.com/scl/fi/jjls1dqmlejtzwjuav576/20251203-finland.jpg?rlkey=wi5dfw42qcg04zmpa78129wix&st=1ptzaxpq&raw=1",
+	title: "Finland",
+	date: "2025-12-03",
+  },
 ];
 
 export default function Adventures() {
