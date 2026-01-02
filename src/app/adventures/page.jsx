@@ -47,7 +47,7 @@ const adventures = [
   },
   {
 	src: "https://www.dropbox.com/scl/fi/elp6moegn0sx8ehdf3cbe/20240427-hong-kong.jpg?rlkey=lb1hx02klwce3edfwb16wjtey&st=si2q2iyv&raw=1",
-	title: "Hong Kong + Taiwan",
+	title: "Hong Kong & Taiwan",
 	date: "2024-04-27",
   },
   {
@@ -97,7 +97,7 @@ const adventures = [
   },
   {
 	src: "https://www.dropbox.com/scl/fi/x617wg0ctygookg0ahwsk/20250430-zion-grand-canyon.jpg?rlkey=q0h2j0vuwkkyy7dm28fle1gq4&st=93en2ym7&raw=1",
-	title: "Zion + Grand Canyon",
+	title: "Zion & Grand Canyon",
 	date: "2025-05-05",
   },
   {
@@ -117,7 +117,7 @@ const adventures = [
   },
   {
 	src: "https://www.dropbox.com/scl/fi/n5phhe6ap4lrsvjkav3o4/20250813-mtv-sf-visit.jpg?rlkey=v4ddnjctroc4bbjn7d4cznd0p&st=lfe4dip8&raw=1",
-	title: "Mountain View + SF Visit",
+	title: "Mountain View & SF Visit",
 	date: "2025-08-13",
   },
   {
@@ -134,6 +134,11 @@ const adventures = [
 	src: "https://www.dropbox.com/scl/fi/jjls1dqmlejtzwjuav576/20251203-finland.jpg?rlkey=wi5dfw42qcg04zmpa78129wix&st=1ptzaxpq&raw=1",
 	title: "Finland",
 	date: "2025-12-03",
+  },
+  {
+	src: "https://www.dropbox.com/scl/fi/ge3e23s27ao1uuwbjdun6/20251229-haidilao.jpg?rlkey=9kquq7ct89hg90wrgb2k9nc1b&st=jdxmc7sb&raw=1",
+	title: "Markville & Haidilao",
+	date: "2025-12-29",
   },
 ];
 
