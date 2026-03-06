@@ -36,6 +36,10 @@ const images = [
   {
     src: "https://www.dropbox.com/scl/fi/9806s9umcoja4o0coqajp/han-fu.jpg?rlkey=4yl5vc12drrq1z9f3jep5uy88&st=8dcw8t5v&raw=1",
     description: "Han Fu",
+  },
+  {
+    src: "https://www.dropbox.com/scl/fi/3iugljx5ohmljp090q820/uwaterloo-grad-photoshoot.jpg?rlkey=408lc8d5ihgvwb4q5cv9az2ip&st=kxi6zftb&raw=1",
+    description: "UWaterloo Graduation Photoshoot",
   }
 ];
 
