@@ -487,10 +487,9 @@ export default function Gallery({
           onTouchEnd={handleTouchEnd}
           onWheel={handleWheel}
         >
-          <div 
+          <div
             ref={modalContentRef}
-            className="modal-content" 
-            style={{ position: "relative" }}
+            className="modal-content"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -503,10 +502,7 @@ export default function Gallery({
                 alt={enrichedFlat[selectedIndex].alt || enrichedFlat[selectedIndex].title || ""}
                 onClick={handleImageClick}
                 onLoad={handleModalImageLoad}
-                style={{ 
-                  maxWidth: "100%", 
-                  maxHeight: "80vh", 
-                  objectFit: "contain",
+                style={{
                   transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
                   transition: isDragging ? 'none' : 'transform 0.2s ease-out',
                   cursor: isZoomed ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in',
@@ -521,9 +517,13 @@ export default function Gallery({
               <div className="arrow-loading">Loading...</div>
             )}
 
-            {!isZoomed && (renderModalInfo
-              ? renderModalInfo(enrichedFlat[selectedIndex])
-              : renderItemInfo?.(enrichedFlat[selectedIndex], selectedIndex))}
+            {!isZoomed && (
+              <div className="modal-caption" ref={modalInfoRef}>
+                {renderModalInfo
+                  ? renderModalInfo(enrichedFlat[selectedIndex])
+                  : renderItemInfo?.(enrichedFlat[selectedIndex], selectedIndex)}
+              </div>
+            )}
           </div>
         </div>
       )}
