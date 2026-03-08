@@ -67,6 +67,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  box-sizing: border-box;
   cursor: pointer;
   overflow: hidden;
   touch-action: none;
@@ -91,7 +92,7 @@
 
   .modal-content {
     max-width: 90vw;
-    max-height: 80vh;
+    max-height: 85vh;
     width: auto;
     display: flex;
     flex-direction: column;
@@ -154,6 +155,18 @@
   }
   .gallery-item {
     margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .image-modal {
+    padding: 12px;
+    align-items: center;
+  }
+
+  .image-modal .modal-content {
+    justify-content: center;
+    padding: 4px;
   }
 }
 
