@@ -145,6 +145,8 @@ const adventures = [
 export default function Adventures() {
   const [isMobile, setIsMobile] = useState(false);
   const [meHighlighted, setMeHighlighted] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
+
 
   const pendingNavRef = useRef(null);
   const lastHighlightTimeRef = useRef(0);
@@ -177,6 +179,10 @@ export default function Adventures() {
     };
   }, []);
 
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
+
   const handleIClick = (e) => {
     if (!meHighlighted) return;
     e.preventDefault();
@@ -206,7 +212,7 @@ export default function Adventures() {
     </div>
   );
 
-  const navButtons = !isMobile ? (
+  const navButtons = !isMobile && themeReady ? (
     <nav className="sticky-nav">
       <div className="nav-buttons">
         {adventures.map((adv, idx) => (
