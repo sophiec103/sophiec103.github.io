@@ -58,9 +58,7 @@
   right: 0;
   bottom: 0;
   width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
+  height: calc(var(--modal-vh, 1vh) * 100);
   background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
@@ -91,12 +89,13 @@
   }
 
   .modal-content {
-    max-width: 90vw;
-    max-height: 85vh;
     width: auto;
+    max-width: 90vw;
+    max-height: calc(var(--modal-vh, 1vh) * 90);
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     cursor: default;
     padding: 8px;
     box-sizing: border-box;
@@ -108,7 +107,7 @@
 
     img {
       max-width: 100%;
-      max-height: 80vh;
+      max-height: calc(var(--modal-vh, 1vh) * 75);
       object-fit: contain;
       margin-bottom: 16px;
       display: block;
@@ -167,6 +166,10 @@
   .image-modal .modal-content {
     justify-content: center;
     padding: 4px;
+  }
+
+  .image-modal .modal-content img {
+    max-height: calc(var(--modal-vh, 1vh) * 65);
   }
 }
 
