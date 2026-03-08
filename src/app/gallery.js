@@ -417,9 +417,7 @@ export default function Gallery({
     }
   };
 
-  const handleOverlayClick = (e) => {
-    if (isZoomed) return;
-    
+  const handleOverlayClick = (e) => {    
     const img = modalImageRef.current;
     const info = modalInfoRef.current;
     
