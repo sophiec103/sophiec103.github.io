@@ -365,6 +365,15 @@ export default function Gallery({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedIndex, enrichedFlat.length, isZoomed]);
 
+  useEffect(() => {
+    const setVh = () => {
+      document.documentElement.style.setProperty('--modal-vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
+  }, []);
+
   const handleGridClick = async (globalIndex) => {
     clickedIndexRef.current = globalIndex;
     latestSelectedRef.current = globalIndex;
